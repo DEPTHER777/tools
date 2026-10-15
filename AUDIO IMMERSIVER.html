@@ -244,10 +244,10 @@ input{font:inherit;color:inherit}
   left:0;
   height:6px;
   border-radius:9px;
-  background:color-mix(in srgb,var(--ac) 32%,transparent);
+  background:color-mix(in srgb,var(--ac) 38%,transparent);
   pointer-events:none;
   width:var(--bw,0%);
-  transition:width .25s linear;
+  transition:width .2s linear;
 }
 input[type=range]{
   -webkit-appearance:none;
@@ -438,7 +438,6 @@ input[type=range]:active::-moz-range-thumb{transform:scale(1.22)}
   text-transform:uppercase;
   transition:color .2s;
 }
-.row.linked- follower{color:var(--ac)}
 .row+.row{margin-top:6px}
 .lab{width:68px;text-align:right;flex:none;opacity:.82}
 .scrollx{
@@ -894,6 +893,8 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible{
 <div class="grp">
 <h3>Playback &amp; High-Res Mastering</h3>
 <div id="fxA"></div>
+<button class="wide sw on" id="buf30Sw" role="switch" aria-checked="true">30s Read-Ahead &amp; Full-Track RAM Buffer</button>
+<button class="wide sw" id="fullBufSw" role="switch" aria-checked="false">Pre-Download 100% of Song Before Play</button>
 <button class="wide sw" id="hz432" role="switch" aria-checked="false">432Hz Natural Warm Tuning</button>
 <button class="wide sw" id="tubeSw" role="switch" aria-checked="false">Warm Analog Tube Saturation</button>
 <button class="wide sw on" id="limSw" role="switch" aria-checked="true">Brickwall Peak Safety Limiter</button>
@@ -927,7 +928,7 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible{
 <div class="grp">
 <h3>Open-Licensed &amp; Direct Streaming Search</h3>
 <div class="status-pill"><span class="status-dot" id="onlineDot"></span><span id="onlineStatusTxt">Online Search Disabled (Local-Only Mode)</span></div>
-<p class="note">All three sources below stream authorized, open-licensed or artist-published audio directly inside the Audio Immersiver 15-Band EQ, Sub-Bass, Tube Warmth &amp; 3D HRTF engine.</p>
+<p class="note">All three sources below stream authorized, open-licensed or artist-published audio with progressive 30s read-ahead &amp; full-song RAM buffering inside the 15-Band EQ &amp; 3D engine.</p>
 <button class="wide sw" id="onlineToggle" role="switch" aria-checked="false" style="margin-top:0;margin-bottom:12px">Enable Online Music Search</button>
 
 <div id="onlineZone" class="disabled-zone" aria-disabled="true">
@@ -994,10 +995,10 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible{
 <div class="grp">
 <h3>Privacy &amp; IP Protection</h3>
 <ul class="kv-list">
-<li><b>Local-First Processing:</b> Imported audio files, 15-band equalization (with Wave-Curve Slider Linking and Auto Headroom Compensation), Sub-Bass harmonic boost, Air exciter, Stereo Widener, Warm Tube Saturation, 432Hz pitch tuning, 3D HRTF spatial panning, reverb impulse generation, and dynamics limiting run locally on your device.</li>
+<li><b>Local-First Processing:</b> Imported audio files, 15-band equalization (with Wave-Curve Slider Linking and Auto Headroom Compensation), True-Stereo 3D HRTF spatial bypass, Sub-Bass harmonic boost, Air exciter, Stereo Widener, Warm Tube Saturation, 432Hz pitch tuning, reverb impulse generation, and dynamics limiting run locally on your device.</li>
 <li><b>Zero Personal Data Collection:</b> This application does not create user accounts, tracking identifiers, analytics, telemetry, or advertising profiles. It does not collect or store your name, email address, contacts, search history, or online listening history.</li>
 <li><b>IP Address &amp; Network Honesty:</b> This application never logs, displays, or stores your IP address. However, HTTPS encryption only protects data in transit and does not conceal your source IP address from external servers you connect to. When you enable online search or play external streams, the music provider (Audius, Internet Archive, or Wikimedia Commons) receives standard network connection details (including your IP address) under its own privacy policy. Using the optional companion backend proxy masks your client IP from upstream search APIs for proxied search requests, though direct media streams still connect from your browser.</li>
-<li><b>Minimal Local Storage:</b> Only your local imported library (in IndexedDB) and theme/audio slider values (in LocalStorage) stay on your device. Online search queries are never persisted.</li>
+<li><b>Minimal Local Storage:</b> Only your local imported library (in IndexedDB) and theme/audio slider values (in LocalStorage) stay on your device. Online search queries and RAM-buffered online streams are never persisted to disk.</li>
 </ul>
 <button class="wide" id="reviewWarnBtn">View Online Use &amp; Copyright Notice</button>
 </div>
@@ -1171,8 +1172,9 @@ const save=()=>{
 
 const S={lib:new Map(),queue:[],pos:-1,pl:Object.create(null),filter:{k:'all'},hist:[],shuffle:false,repeat:'off',up:null,upFor:-1};
 const cache=new Map();
+const activeDownloads=new Map();
 let ctx,mode='file',intent=false,switching=false,token=0,errs=0,pt=0,LS=null,LN=null,raf=0,buf,apOn=false,manual=false,visOn=false,apLast=0,ang=0,drag=false,irT=0,activeBlobUrl=null,preloadedId=null;
-let hz432On=false,tubeOn=false,limOn=true,specOn=true,eqLinkOn=false,accentColorHex='#ff6b81';
+let hz432On=false,tubeOn=false,limOn=true,specOn=true,eqLinkOn=false,buf30On=true,fullBufOn=false,accentColorHex='#ff6b81',lastAppliedRate=1;
 const N={};
 
 const db=new Promise((ok,no)=>{
@@ -1227,8 +1229,8 @@ function updateEqHeadroom(){
   const subBoost=+fxIn.sub?.value||0;
   const airBoost=+fxIn.air?.value||0;
   const totalPeak=Math.max(maxBoost,subBoost*0.7,airBoost*0.6);
-  const atten=totalPeak>3?Math.pow(10,-((totalPeak-3)*0.42)/20):1;
-  T(N.pre.gain,0.44*atten,0.08);
+  const atten=totalPeak>2?Math.pow(10,-((totalPeak-2)*0.48)/20):1;
+  T(N.pre.gain,0.48*atten,0.08);
 }
 
 const EQ_LINK_WEIGHTS=[1,0.68,0.38,0.16];
@@ -1278,6 +1280,20 @@ $('#eqLink').onclick=function(){
   toast(eqLinkOn?'Linked EQ Wave Curve enabled: nearby sliders move together':'Single-slider EQ mode restored');
 };
 
+$('#buf30Sw').onclick=function(){
+  buf30On=!buf30On;
+  this.classList.toggle('on',buf30On);
+  this.setAttribute('aria-checked',String(buf30On));
+  toast(buf30On?'30s Progressive Read-Ahead & Full RAM Buffer enabled':'Standard browser streaming enabled');
+};
+
+$('#fullBufSw').onclick=function(){
+  fullBufOn=!fullBufOn;
+  this.classList.toggle('on',fullBufOn);
+  this.setAttribute('aria-checked',String(fullBufOn));
+  toast(fullBufOn?'Full-Song Pre-Download enabled: downloads 100% to memory before play':'30s Fast-Start Read-Ahead restored');
+};
+
 Object.keys(PRE).forEach(n=>{
   const b=el('button','chip',n);
   b.onclick=()=>{
@@ -1294,59 +1310,71 @@ function buildTubeCurve(amount){
     for(let i=0;i<n;i++)curve[i]=i*2/n-1;
     return curve;
   }
-  const k=1+amount*2.4,norm=Math.tanh(k);
+  const k=1+amount*1.8,norm=Math.tanh(k);
   for(let i=0;i<n;i++){
     const x=i*2/n-1;
     curve[i]=Math.tanh(k*x)/norm;
   }
   return curve;
 }
-const linearCurve=buildTubeCurve(0),warmTubeCurve=buildTubeCurve(0.65);
+const linearCurve=buildTubeCurve(0),warmTubeCurve=buildTubeCurve(0.55);
 
-function updatePlaybackSpeedAndPitch(){
+function updatePlaybackSpeedAndPitch(force){
   const baseSpeed=+fxIn.speed.value||1;
   const ratio=hz432On?(432/440):1;
   const effectiveRate=clamp(baseSpeed*ratio,0.25,4);
-  if('preservesPitch' in A)A.preservesPitch=!hz432On;
-  else if('webkitPreservesPitch' in A)A.webkitPreservesPitch=!hz432On;
-  A.defaultPlaybackRate=effectiveRate;
-  A.playbackRate=effectiveRate;
+  const preserve=!hz432On;
+  if('preservesPitch' in A&&A.preservesPitch!==preserve)A.preservesPitch=preserve;
+  else if('webkitPreservesPitch' in A&&A.webkitPreservesPitch!==preserve)A.webkitPreservesPitch=preserve;
+  if(force||Math.abs(effectiveRate-lastAppliedRate)>0.0005){
+    lastAppliedRate=effectiveRate;
+    A.defaultPlaybackRate=effectiveRate;
+    A.playbackRate=effectiveRate;
+  }
   discEl.style.animationDuration=(8/effectiveRate).toFixed(2)+'s';
+}
+
+function updateSpatialRouting(){
+  if(!ctx||!N.stereoBypass||!N.panGain)return;
+  const h=+fxIn.height.value;
+  const spatialActive=apOn||manual||Math.abs(h)>0.1;
+  T(N.stereoBypass.gain,spatialActive?0:1,0.07);
+  T(N.panGain.gain,spatialActive?1:0,0.07);
 }
 
 function applyOne(k){
   const v=+fxIn[k].value;
   if(k==='speed'){
-    updatePlaybackSpeedAndPitch();
+    updatePlaybackSpeedAndPitch(false);
   }
   if(!ctx)return;
   if(k==='vol')T(N.master.gain,v);
-  else if(k==='tone'){T(N.lo.gain,-v*1.5);T(N.hi.gain,v*1.5)}
+  else if(k==='tone'){T(N.lo.gain,-v*1.4);T(N.hi.gain,v*1.4)}
   else if(k==='sub'){T(N.sub.gain,v);updateEqHeadroom()}
   else if(k==='air'){T(N.air.gain,v);updateEqHeadroom()}
   else if(k==='dry')T(N.dry.gain,v);
   else if(k==='wet')T(N.wet.gain,v);
   else if(k==='width'){
-    const sideGain=Math.max(0,(v-1)*0.38);
+    const sideGain=Math.max(0,(v-1)*0.32);
     T(N.widthGain.gain,sideGain,.08);
   }
   else if(k==='comp'){
-    T(N.comp.threshold,-5-v/10);
-    T(N.comp.ratio,2+v/10);
-    T(N.comp.knee,v<50?15:5);
-    T(N.comp.attack,.03);
-    T(N.comp.release,.22);
-    T(N.mk.gain,1+v/100*1.4);
+    T(N.comp.threshold,-22+(100-v)*0.12);
+    T(N.comp.ratio,1.2+v/45);
+    T(N.comp.knee,24);
+    T(N.comp.attack,.055);
+    T(N.comp.release,.28);
+    T(N.mk.gain,1+v/100*0.18);
   }
   else if(k==='room'||k==='reflect')ir();
-  else if(k==='radius'||k==='height'||k==='depth')pos();
+  else if(k==='radius'||k==='height'||k==='depth'){pos();updateSpatialRouting()}
 }
 
 $('#hz432').onclick=function(){
   hz432On=!hz432On;
   this.classList.toggle('on',hz432On);
   this.setAttribute('aria-checked',String(hz432On));
-  updatePlaybackSpeedAndPitch();
+  updatePlaybackSpeedAndPitch(true);
   toast(hz432On?'432Hz Natural Warm Tuning enabled':'440Hz Standard Tuning restored');
 };
 
@@ -1355,7 +1383,10 @@ $('#tubeSw').onclick=function(){
   this.classList.toggle('on',tubeOn);
   this.setAttribute('aria-checked',String(tubeOn));
   engine();
-  if(N.shaper)N.shaper.curve=tubeOn?warmTubeCurve:linearCurve;
+  if(N.shaper){
+    N.shaper.curve=tubeOn?warmTubeCurve:linearCurve;
+    N.shaper.oversample=tubeOn?'2x':'none';
+  }
   toast(tubeOn?'Warm Analog Tube Saturation enabled':'Tube Saturation bypassed');
 };
 
@@ -1365,10 +1396,10 @@ $('#limSw').onclick=function(){
   this.setAttribute('aria-checked',String(limOn));
   engine();
   if(N.lim){
-    T(N.lim.threshold,limOn?-1.0:0,.04);
-    T(N.lim.ratio,limOn?20:1,.04);
+    T(N.lim.threshold,limOn?-0.6:0,.04);
+    T(N.lim.ratio,limOn?12:1,.04);
   }
-  toast(limOn?'Brickwall Peak Limiter active':'Brickwall Peak Limiter bypassed');
+  toast(limOn?'Safety Limiter active':'Safety Limiter bypassed');
 };
 
 $('#specSw').onclick=function(){
@@ -1387,13 +1418,13 @@ function ir(){
     const rm=+fxIn.room.value,rf=+fxIn.reflect.value,key=`${rm.toFixed(2)}|${rf.toFixed(2)}`;
     if(key===lastIrKey)return;
     lastIrKey=key;
-    const sr=ctx.sampleRate,len=Math.max(1,Math.min(sr*2.5,Math.floor(sr*rm))),d=1+rf*6;
+    const sr=ctx.sampleRate,len=Math.max(1,Math.min(Math.floor(sr*1.25),Math.floor(sr*rm*0.65))),d=1.4+rf*5;
     const b=ctx.createBuffer(2,len,sr),step=256;
     for(let c=0;c<2;c++){
       const h=b.getChannelData(c);
       for(let base=0;base<len;base+=step){
         const end=Math.min(len,base+step);
-        const env=Math.pow(1-base/len,d)*.26;
+        const env=Math.pow(1-base/len,d)*.22;
         for(let i=base;i<end;i++){
           h[i]=(Math.random()*2-1)*env;
         }
@@ -1412,7 +1443,7 @@ function ir(){
 function pos(){
   const R=+fxIn.radius.value,D=+fxIn.depth.value,h=+fxIn.height.value,on=apOn||manual;
   const x=on?Math.cos(ang)*R:0,z=on?Math.sin(ang)*D:-1;
-  if(ctx){
+  if(ctx&&N.pan){
     T(N.pan.positionX,x,.08);
     T(N.pan.positionY,h,.08);
     T(N.pan.positionZ,z,.08);
@@ -1434,19 +1465,35 @@ function autoPan(on){
   dot.classList.toggle('auto',on);
   pad.classList.toggle('spin',on);
   pos();
+  updateSpatialRouting();
   $('#apan').classList.toggle('on',on);
   $('#apan').setAttribute('aria-checked',String(on));
   scheduleFrameLoop();
 }
 $('#apan').onclick=()=>autoPan(!apOn);
-$('#ctr').onclick=()=>{manual=false;autoPan(false);fxIn.radius.value=5;cfg.fx.radius=5;pos();save()};
+$('#ctr').onclick=()=>{
+  manual=false;
+  autoPan(false);
+  fxIn.radius.value=5;
+  fxIn.height.value=0;
+  cfg.fx.radius=5;
+  cfg.fx.height=0;
+  pos();
+  updateSpatialRouting();
+  save();
+};
 
 let dragP=false;
 const movePad=e=>{
   const r=pad.getBoundingClientRect(),m=r.width/2-14,x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2;
   ang=Math.atan2(y,x);
   const R=Math.min(20,Math.max(1,Math.min(Math.hypot(x,y),m)/m*20));
-  fxIn.radius.value=R;cfg.fx.radius=R;manual=true;pos();save();
+  fxIn.radius.value=R;
+  cfg.fx.radius=R;
+  manual=true;
+  pos();
+  updateSpatialRouting();
+  save();
 };
 pad.onpointerdown=e=>{engine();if(apOn)autoPan(false);dragP=true;pad.setPointerCapture(e.pointerId);movePad(e)};
 pad.onpointermove=e=>{if(dragP)movePad(e)};
@@ -1467,20 +1514,23 @@ function engine(){
   const bq=(t,f,qVal=1.0)=>{const b=c.createBiquadFilter();b.type=t;b.frequency.value=f;b.Q.value=qVal;return b};
   const g=v=>{const n=c.createGain();n.gain.value=v;return n};
   N.src=c.createMediaElementSource(A);
-  N.pre=g(.44);
-  N.sub=bq('peaking',55,1.15);
+  N.pre=g(.48);
+  N.sub=bq('peaking',55,1.1);
   N.lo=bq('lowshelf',350);
   N.hi=bq('highshelf',3000);
   N.air=bq('highshelf',13500);
-  N.eq=F.map((f,i)=>bq(i===0?'lowshelf':i===F.length-1?'highshelf':'peaking',f,1.25));
+  N.eq=F.map((f,i)=>bq(i===0?'lowshelf':i===F.length-1?'highshelf':'peaking',f,1.2));
   N.shaper=c.createWaveShaper();
   N.shaper.curve=tubeOn?warmTubeCurve:linearCurve;
-  N.shaper.oversample='2x';
+  N.shaper.oversample=tubeOn?'2x':'none';
+  N.stereoBypass=g(1);
   N.pan=c.createPanner();
   N.pan.panningModel='HRTF';
   N.pan.distanceModel='inverse';
   N.pan.refDistance=5;
-  N.pan.rolloffFactor=.5;
+  N.pan.rolloffFactor=.45;
+  N.panGain=g(0);
+  N.stageMix=g(1);
   N.conv=c.createConvolver();
   N.wet=g(.3);
   N.dry=g(1);
@@ -1488,24 +1538,36 @@ function engine(){
   N.widthDelay.delayTime.value=0.011;
   N.widthGain=g(0);
   N.master=g(1);
+  const initComp=+fxIn.comp.value;
   N.comp=c.createDynamicsCompressor();
-  N.mk=g(1);
+  N.comp.threshold.value=-22+(100-initComp)*0.12;
+  N.comp.knee.value=24;
+  N.comp.ratio.value=1.2+initComp/45;
+  N.comp.attack.value=0.055;
+  N.comp.release.value=0.28;
+  N.mk=g(1+initComp/100*0.18);
   N.lim=c.createDynamicsCompressor();
-  N.lim.threshold.value=limOn?-1.0:0;
-  N.lim.knee.value=0;
-  N.lim.ratio.value=limOn?20:1;
-  N.lim.attack.value=0.002;
-  N.lim.release.value=0.09;
+  N.lim.threshold.value=limOn?-0.6:0;
+  N.lim.knee.value=6;
+  N.lim.ratio.value=limOn?12:1;
+  N.lim.attack.value=0.01;
+  N.lim.release.value=0.16;
   N.an=c.createAnalyser();
   N.an.fftSize=128;
   N.an.smoothingTimeConstant=0.76;
   N.fade=g(1);
 
-  [N.src,N.pre,N.sub,N.lo,N.hi,N.air,...N.eq,N.shaper,N.pan].reduce((a,b)=>(a.connect(b),b));
-  N.pan.connect(N.dry);
-  N.pan.connect(N.conv);
+  [N.src,N.pre,N.sub,N.lo,N.hi,N.air,...N.eq,N.shaper].reduce((a,b)=>(a.connect(b),b));
+  N.shaper.connect(N.stereoBypass);
+  N.stereoBypass.connect(N.stageMix);
+  N.shaper.connect(N.pan);
+  N.pan.connect(N.panGain);
+  N.panGain.connect(N.stageMix);
+
+  N.stageMix.connect(N.dry);
+  N.stageMix.connect(N.conv);
   N.conv.connect(N.wet);
-  N.pan.connect(N.widthDelay);
+  N.stageMix.connect(N.widthDelay);
   N.widthDelay.connect(N.widthGain);
   N.dry.connect(N.master);
   N.wet.connect(N.master);
@@ -1515,6 +1577,7 @@ function engine(){
   N.eq.forEach((b,i)=>{b.gain.value=eqFloat[i]});
   Object.keys(fxIn).forEach(applyOne);
   updateEqHeadroom();
+  updateSpatialRouting();
   ir();
   pos();
   c.onstatechange=()=>{if(intent&&c.state!=='running')c.resume().catch(()=>{})};
@@ -1691,7 +1754,7 @@ function halt(){
 const remember=(id,b)=>{
   cache.delete(id);
   cache.set(id,b);
-  while(cache.size>6)cache.delete(cache.keys().next().value);
+  while(cache.size>10)cache.delete(cache.keys().next().value);
 };
 let discUrl=null;
 function setDisc(list){
@@ -1750,7 +1813,7 @@ function releaseActiveBlobUrl(){
   if(activeBlobUrl){
     const old=activeBlobUrl;
     activeBlobUrl=null;
-    setTimeout(()=>URL.revokeObjectURL(old),1500);
+    setTimeout(()=>URL.revokeObjectURL(old),2000);
   }
 }
 
@@ -1772,6 +1835,113 @@ async function resolveArchiveTrackUrl(identifier){
   const audioFile=files.find(f=>f&&f.name&&/\.(mp3|m4a|ogg|flac)$/i.test(f.name)&&!String(f.name).startsWith('_'));
   if(!audioFile)return null;
   return `https://archive.org/download/${safeId}/${encodeURIComponent(audioFile.name).replace(/%2F/g,'/')}`;
+}
+
+function downloadTrackToMemory(id,url,onProgress){
+  if(cache.has(id))return Promise.resolve(cache.get(id));
+  if(activeDownloads.has(id))return activeDownloads.get(id).promise;
+  const controller=new AbortController();
+  const promise=(async()=>{
+    try{
+      const r=await fetch(url,{
+        signal:controller.signal,
+        mode:'cors',
+        credentials:'omit',
+        referrerPolicy:'no-referrer'
+      });
+      if(!r.ok)return null;
+      const contentType=r.headers.get('content-type')||'audio/mpeg';
+      const total=parseInt(r.headers.get('content-length')||'0',10);
+      if(!r.body||!r.body.getReader){
+        const blob=await r.blob();
+        if(blob.size>8192){
+          remember(id,blob);
+          if(onProgress)onProgress(100,blob.size,blob.size);
+          return blob;
+        }
+        return null;
+      }
+      const reader=r.body.getReader();
+      const chunks=[];
+      let received=0;
+      while(true){
+        const {done,value}=await reader.read();
+        if(done)break;
+        if(value){
+          chunks.push(value);
+          received+=value.byteLength;
+          if(onProgress){
+            const pct=total>0?Math.min(99,Math.round(received/total*100)):Math.min(95,Math.round(received/524288*30));
+            onProgress(pct,received,total);
+          }
+        }
+      }
+      const fullBlob=new Blob(chunks,{type:contentType});
+      if(fullBlob.size>8192){
+        remember(id,fullBlob);
+        if(onProgress)onProgress(100,fullBlob.size,fullBlob.size);
+        return fullBlob;
+      }
+      return null;
+    }catch(_){
+      return null;
+    }finally{
+      activeDownloads.delete(id);
+    }
+  })();
+  activeDownloads.set(id,{controller,promise});
+  return promise;
+}
+
+function waitForInitial30sBuffer(audioEl,maxWaitMs){
+  return new Promise(resolve=>{
+    let settled=false;
+    const done=()=>{
+      if(settled)return;
+      settled=true;
+      audioEl.removeEventListener('canplaythrough',done);
+      audioEl.removeEventListener('progress',checkBuf);
+      audioEl.removeEventListener('error',done);
+      clearTimeout(tm);
+      resolve();
+    };
+    const checkBuf=()=>{
+      try{
+        if(audioEl.buffered&&audioEl.buffered.length){
+          const bufferedAhead=audioEl.buffered.end(audioEl.buffered.length-1)-audioEl.currentTime;
+          const targetAhead=Number.isFinite(audioEl.duration)?Math.min(28,audioEl.duration*0.85):15;
+          if(bufferedAhead>=targetAhead||audioEl.readyState>=4)done();
+        }
+      }catch(_){}
+    };
+    const tm=setTimeout(done,maxWaitMs);
+    audioEl.addEventListener('canplaythrough',done,{once:true});
+    audioEl.addEventListener('progress',checkBuf);
+    audioEl.addEventListener('error',done,{once:true});
+    checkBuf();
+  });
+}
+
+async function swapToMemoryBlobIfStalled(id){
+  const blob=cache.get(id);
+  if(!blob||S.queue[S.pos]!==id||activeBlobUrl)return false;
+  const savedTime=A.currentTime||0;
+  const wasPlaying=intent;
+  releaseActiveBlobUrl();
+  activeBlobUrl=URL.createObjectURL(blob);
+  A.src=activeBlobUrl;
+  bufBarEl.style.setProperty('--bw','100%');
+  if(savedTime>0.2){
+    await new Promise(res=>{
+      A.addEventListener('loadedmetadata',()=>{
+        try{A.currentTime=savedTime}catch(_){}
+        res();
+      },{once:true});
+    });
+  }
+  updatePlaybackSpeedAndPitch(true);
+  if(wasPlaying)await A.play().catch(()=>{});
+  return true;
 }
 
 async function playIndex(i,o={}){
@@ -1810,36 +1980,62 @@ async function playIndex(i,o={}){
     if(resolved)m.remoteUrl=resolved;
   }
 
+  if(!b&&fullBufOn&&m.remoteUrl&&isVerifiedHttpsUrl(m.remoteUrl)){
+    setTitle(m.name,formatTrackSubtitle(m,'Downloading 100% to memory for zero-cut play...'));
+    const dlBlob=await downloadTrackToMemory(id,m.remoteUrl,(pct)=>{
+      if(t===token){
+        bufBarEl.style.setProperty('--bw',pct+'%');
+        subEl.textContent=formatTrackSubtitle(m,`Downloading to RAM (${pct}%)...`);
+      }
+    });
+    if(t!==token)return;
+    if(dlBlob)b=dlBlob;
+  }
+
   releaseActiveBlobUrl();
 
   if(b){
     remember(id,b);
     activeBlobUrl=URL.createObjectURL(b);
     A.crossOrigin='anonymous';
+    A.preload='auto';
     A.src=activeBlobUrl;
     bufBarEl.style.setProperty('--bw','100%');
   }else if(m.remoteUrl&&isVerifiedHttpsUrl(m.remoteUrl)){
     A.crossOrigin='anonymous';
     A.preload='auto';
     A.src=m.remoteUrl;
+    A.load();
+    if(buf30On){
+      downloadTrackToMemory(id,m.remoteUrl,(pct)=>{
+        if(t===token&&pct>lastBufPct){
+          lastBufPct=pct;
+          bufBarEl.style.setProperty('--bw',pct+'%');
+        }
+      });
+    }
   }else{
     switching=false;
     toast('Track stream is unavailable, skipping...');
     return setTimeout(next,350);
   }
 
-  updatePlaybackSpeedAndPitch();
-  setTitle(m.name,formatTrackSubtitle(m,auto?'Buffering smooth stream...':'Ready'));
+  updatePlaybackSpeedAndPitch(true);
+  setTitle(m.name,formatTrackSubtitle(m,b?'100% in RAM · Zero-Buffer Ready':auto?'Pre-buffering 30s chunk ahead...':'Ready'));
   meta(m.name,m.folder,m.art);
 
   if(auto){
+    if(!b&&buf30On){
+      await waitForInitial30sBuffer(A,950);
+      if(t!==token)return;
+    }
     start();
   }else{
     switching=false;
     intent=false;
     ui();
   }
-  setTimeout(prefetch,1000);
+  setTimeout(prefetch,1200);
 }
 
 function pickNext(wrap){
@@ -1858,21 +2054,23 @@ function pickNext(wrap){
 async function prefetch(){
   const n=pickNext(S.repeat==='all');if(n<0)return;
   const id=S.queue[n],m=S.lib.get(id);
-  if(!m||preloadedId===id)return;
+  if(!m||preloadedId===id||cache.has(id))return;
   preloadedId=id;
   if(!m.ephemeral){
-    if(!cache.has(id)){
-      idb('blobs','readonly',s=>s.get(id)).then(b=>{if(b)remember(id,b)}).catch(()=>{});
-    }
+    idb('blobs','readonly',s=>s.get(id)).then(b=>{if(b)remember(id,b)}).catch(()=>{});
     return;
   }
   if(!m.remoteUrl&&m.archiveId){
     const u=await resolveArchiveTrackUrl(m.archiveId).catch(()=>null);
     if(u)m.remoteUrl=u;
   }
-  if(m.remoteUrl&&isVerifiedHttpsUrl(m.remoteUrl)&&preA.src!==m.remoteUrl){
-    preA.src=m.remoteUrl;
-    preA.load();
+  if(m.remoteUrl&&isVerifiedHttpsUrl(m.remoteUrl)){
+    if(buf30On){
+      downloadTrackToMemory(id,m.remoteUrl);
+    }else if(preA.src!==m.remoteUrl){
+      preA.src=m.remoteUrl;
+      preA.load();
+    }
   }
 }
 
@@ -1894,10 +2092,18 @@ function prev(){
 let lastBufPct=-1,lastDisplayedSec=-1;
 function updateBufferBar(){
   try{
+    const id=S.queue[S.pos];
+    if(id&&cache.has(id)){
+      if(lastBufPct!==100){
+        lastBufPct=100;
+        bufBarEl.style.setProperty('--bw','100%');
+      }
+      return;
+    }
     if(A.buffered&&A.buffered.length&&Number.isFinite(A.duration)&&A.duration>0){
       const end=A.buffered.end(A.buffered.length-1);
       const pct=Math.min(100,Math.round(end/A.duration*100));
-      if(pct!==lastBufPct){
+      if(pct>lastBufPct){
         lastBufPct=pct;
         bufBarEl.style.setProperty('--bw',pct+'%');
       }
@@ -1911,22 +2117,27 @@ A.onplaying=()=>{
   errs=0;
   intent=true;
   T(N.fade.gain,1,.035);
-  const m=S.lib.get(S.queue[S.pos]);
-  if(m&&mode==='file')subEl.textContent=formatTrackSubtitle(m,'Playing (3D/EQ Active)');
+  const id=S.queue[S.pos],m=S.lib.get(id);
+  if(m&&mode==='file'){
+    const statusLabel=cache.has(id)?'Playing from RAM (Zero-Cut)':'Playing (30s+ Buffer Active)';
+    subEl.textContent=formatTrackSubtitle(m,statusLabel);
+  }
   ui();
   ps();
   updateBufferBar();
 };
-A.onwaiting=()=>{
+A.onwaiting=async()=>{
   if(intent&&mode!=='live'){
-    const m=S.lib.get(S.queue[S.pos]);
-    subEl.textContent=m?formatTrackSubtitle(m,'Buffering audio...'):'Buffering stream...';
+    const id=S.queue[S.pos],m=S.lib.get(id);
+    if(id&&await swapToMemoryBlobIfStalled(id))return;
+    subEl.textContent=m?formatTrackSubtitle(m,'Buffering next 30s chunk...'):'Buffering next 30s chunk...';
   }
 };
-A.onstalled=()=>{
+A.onstalled=async()=>{
   if(intent&&mode!=='live'){
-    const m=S.lib.get(S.queue[S.pos]);
-    subEl.textContent=m?formatTrackSubtitle(m,'Re-syncing stream buffer...'):'Re-syncing stream...';
+    const id=S.queue[S.pos],m=S.lib.get(id);
+    if(id&&await swapToMemoryBlobIfStalled(id))return;
+    subEl.textContent=m?formatTrackSubtitle(m,'Re-syncing 30s stream buffer...'):'Re-syncing stream...';
   }
 };
 window.addEventListener('online',()=>{
@@ -1953,7 +2164,8 @@ A.onended=()=>{
 };
 A.onerror=async()=>{
   if(!A.getAttribute('src'))return;
-  const m=S.lib.get(S.queue[S.pos]);
+  const id=S.queue[S.pos],m=S.lib.get(id);
+  if(id&&await swapToMemoryBlobIfStalled(id))return;
   if(m&&m.id&&m.id.startsWith('audius|')&&(m._retryIdx||0)<AUDIUS_FALLBACKS.length){
     const idx=m._retryIdx||0;
     m._retryIdx=idx+1;
@@ -1992,15 +2204,19 @@ A.onratechange=ps;
 A.ontimeupdate=()=>{
   if(drag||mode==='live')return;
   const d=A.duration,c=A.currentTime;
-  if(Number.isFinite(d)){
-    seekEl.max=d;
-    seekEl.value=c;
-    if(d-c<20&&d>15)prefetch();
-  }
   const sec=Number.isFinite(d)?Math.floor(c):-1;
   if(sec!==lastDisplayedSec){
     lastDisplayedSec=sec;
+    if(Number.isFinite(d)){
+      seekEl.max=d;
+      seekEl.value=c;
+      if(d-c<35&&d>15)prefetch();
+    }
     curEl.textContent=sec>=0?fmt(sec):'LIVE';
+    const id=S.queue[S.pos],m=S.lib.get(id);
+    if(id&&cache.has(id)&&!activeBlobUrl&&m&&intent&&c>0.5){
+      subEl.textContent=formatTrackSubtitle(m,'100% Buffered in RAM · Zero-Cut Active');
+    }
   }
 };
 
@@ -2096,26 +2312,33 @@ $('#capSys').onclick=()=>live('sys');
 $('#capStop').onclick=()=>stopLive();
 $('#extBtn').onclick=()=>openSheet('ex');
 
-$('#urlGo').onclick=()=>{
+$('#urlGo').onclick=async()=>{
   engine();
   const raw=$('#url').value.trim();
   if(!raw)return toast('Enter a direct HTTPS audio stream URL');
   let u;
   try{u=new URL(raw)}catch(_){return toast('Enter a valid URL')}
   if(!isVerifiedHttpsUrl(u.href))return toast('Only verified HTTPS audio stream URLs are permitted');
-  stopLive(true);
-  token++;
-  releaseActiveBlobUrl();
-  setMode('stream');
-  A.crossOrigin='anonymous';
-  A.src=u.href;
-  updatePlaybackSpeedAndPitch();
-  switching=true;
-  setTitle(u.hostname,'Direct HTTPS Stream · Playing');
-  meta(u.hostname,'Direct Stream');
-  curEl.textContent='LIVE';
-  totEl.textContent='LIVE';
-  start();
+  const customId='direct|'+u.href.slice(0,180);
+  if(!S.lib.has(customId)){
+    S.lib.set(customId,{
+      id:customId,
+      name:clean(u.pathname.split('/').pop()||u.hostname)||'Direct Stream',
+      ext:'stream',
+      providerLabel:'HTTPS STREAM',
+      size:0,
+      folder:clean(u.hostname),
+      liked:false,
+      added:Date.now(),
+      remoteUrl:u.href,
+      ephemeral:true
+    });
+  }
+  const idx=S.queue.indexOf(customId);
+  if(idx>=0){playIndex(idx);return}
+  S.queue.splice(S.pos+1,0,customId);
+  renderQ();
+  playIndex(S.pos+1);
 };
 
 document.addEventListener('touchstart',function(){},{passive:true});
@@ -2266,6 +2489,7 @@ function enqueue(ids,nxt){
   if(S.pos<0&&S.queue.length)playIndex(0,{auto:false});
   saveQ();
   renderQ();
+  setTimeout(prefetch,400);
   toast(nxt?'Plays next':'Added to queue');
 }
 function playList(list,i){
@@ -2533,10 +2757,13 @@ $('#fxReset').onclick=()=>{
   if(tubeOn)$('#tubeSw').click();
   if(!limOn)$('#limSw').click();
   if(eqLinkOn)$('#eqLink').click();
+  if(!buf30On)$('#buf30Sw').click();
+  if(fullBufOn)$('#fullBufSw').click();
   manual=false;
   autoPan(false);
   Object.keys(fxIn).forEach(applyOne);
   updateEqHeadroom();
+  updateSpatialRouting();
   save();
 };
 

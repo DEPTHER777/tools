@@ -119,6 +119,7 @@ input{font:inherit;color:inherit}
   align-items:center;
   justify-content:center;
   overflow:hidden;
+  background:transparent;
   contain:layout style;
 }
 .discw{
@@ -128,6 +129,7 @@ input{font:inherit;color:inherit}
   justify-content:center;
   transform:translate3d(0,0,0) scale(var(--pulse,1));
   border-radius:50%;
+  background:transparent;
 }
 .discw::before{
   content:"";
@@ -135,7 +137,7 @@ input{font:inherit;color:inherit}
   inset:-10px;
   border-radius:50%;
   background:radial-gradient(circle,var(--ac-25) 0%,transparent 70%);
-  opacity:var(--halo,0.18);
+  opacity:var(--halo,0.16);
   pointer-events:none;
   z-index:0;
 }
@@ -146,8 +148,14 @@ input{font:inherit;color:inherit}
   transform:translate(-50%,-50%);
   width:calc(100% + 56px);
   height:calc(100% + 56px);
+  background:transparent!important;
   pointer-events:none;
   z-index:1;
+  opacity:0;
+  transition:opacity .22s ease-out;
+}
+#visCanvas.active{
+  opacity:1;
 }
 .disc-platter{
   position:relative;
@@ -463,19 +471,9 @@ input[type=range]:active:not(:disabled)::-moz-range-thumb{transform:scale(1.2)}
   opacity:1;
 }
 
-/* GPU-Accelerated Drawer (Sheet) with Directional Motion Blur */
-@keyframes sheetMotionBlurY{
-  0%{filter:url(#mbY) blur(1.5px);transform:translate3d(0,32%,0) scaleY(1.015)}
-  55%{filter:url(#mbY);transform:translate3d(0,-0.4%,0) scaleY(1.003)}
-  100%{filter:none;transform:translate3d(0,0,0) scaleY(1)}
-}
-@keyframes sheetMotionBlurX{
-  0%{filter:url(#mbX) blur(1.5px);transform:translate3d(32%,0,0) scaleX(1.015)}
-  55%{filter:url(#mbX);transform:translate3d(-0.4%,0,0) scaleX(1.003)}
-  100%{filter:none;transform:translate3d(0,0,0) scaleX(1)}
-}
-@keyframes paneMotionBlur{
-  0%{opacity:.25;filter:url(#mbX) blur(1px);transform:translate3d(10px,0,0)}
+/* Interruptible, Glitch-Free Drawer (Sheet) Transitions with Velocity Motion Blur */
+@keyframes paneSlideIn{
+  0%{opacity:.3;filter:blur(1.2px);transform:translate3d(8px,0,0)}
   100%{opacity:1;filter:none;transform:translate3d(0,0,0)}
 }
 .sheet{
@@ -496,20 +494,20 @@ input[type=range]:active:not(:disabled)::-moz-range-thumb{transform:scale(1.2)}
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
-  transform:translate3d(0,103%,0);
+  transform:translate3d(0,104%,0);
   opacity:0;
   visibility:hidden;
-  contain:layout paint style;
+  contain:layout style;
   backface-visibility:hidden;
   transition:
-    transform .32s cubic-bezier(.22,1,.36,1),
+    transform .3s cubic-bezier(.22,1,.36,1),
     opacity .22s ease-out,
-    filter .26s ease-out,
-    visibility 0s linear .32s;
+    filter .22s ease-out,
+    visibility 0s linear .3s;
 }
 .sheet.animating{
   will-change:transform,opacity,filter;
-  filter:url(#mbY);
+  filter:blur(1.4px);
 }
 .sheet.open{
   pointer-events:auto;
@@ -517,9 +515,6 @@ input[type=range]:active:not(:disabled)::-moz-range-thumb{transform:scale(1.2)}
   opacity:1;
   visibility:visible;
   transition-delay:0s;
-}
-.sheet.open.animating{
-  animation:sheetMotionBlurY .32s cubic-bezier(.22,1,.36,1) forwards;
 }
 .sheet::-webkit-scrollbar{display:none}
 .sh{
@@ -658,8 +653,8 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
   background:var(--bg);
   box-shadow:0 12px 28px rgba(0,0,0,.28);
   transform:translate3d(0,14px,0) scale(.95);
-  filter:blur(2px);
-  transition:transform .24s cubic-bezier(.22,1,.36,1),filter .22s ease-out;
+  filter:blur(1.5px);
+  transition:transform .24s cubic-bezier(.22,1,.36,1),filter .2s ease-out;
 }
 #dlg.open .dbox,#warnDlg.open .dbox,#tutDlg.open .dbox{
   transform:translate3d(0,0,0) scale(1);
@@ -732,7 +727,7 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
 }
 #menu.on{
   display:block;
-  animation:paneMotionBlur .18s cubic-bezier(.22,1,.36,1);
+  animation:paneSlideIn .16s cubic-bezier(.22,1,.36,1);
 }
 #menu button{
   display:block;
@@ -761,7 +756,7 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
 .pane{display:none;flex-direction:column;gap:10px;flex:1;min-height:0}
 .pane.on{
   display:flex;
-  animation:paneMotionBlur .22s cubic-bezier(.22,1,.36,1);
+  animation:paneSlideIn .2s cubic-bezier(.22,1,.36,1);
 }
 .tools{display:flex;gap:8px;flex-wrap:wrap;flex:none}
 .list{
@@ -1029,15 +1024,9 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
     width:min(470px,100%);
     border-radius:30px 0 0 30px;
     box-shadow:-12px 0 26px rgba(0,0,0,.16);
-    transform:translate3d(103%,0,0);
-  }
-  .side.animating{
-    filter:url(#mbX);
+    transform:translate3d(104%,0,0);
   }
   .sheet.open{transform:translate3d(0,0,0)}
-  .side.open.animating{
-    animation:sheetMotionBlurX .32s cubic-bezier(.22,1,.36,1) forwards;
-  }
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001s!important;transition-duration:.001s!important;filter:none!important}
@@ -1048,15 +1037,14 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
 <!-- Hardware-Accelerated Directional Motion Blur SVG Filters -->
 <svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true">
   <defs>
-    <filter id="mbY" x="-5%" y="-15%" width="110%" height="130%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="0 6"/>
+    <filter id="mbY" x="-5%" y="-12%" width="110%" height="124%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="0 3.5"/>
     </filter>
-    <filter id="mbX" x="-15%" y="-5%" width="130%" height="110%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="6 0"/>
+    <filter id="mbX" x="-12%" y="-5%" width="124%" height="110%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3.5 0"/>
     </filter>
   </defs>
 </svg>
-
 <div class="app">
 <main class="player">
 <header class="bar">
@@ -1136,7 +1124,7 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
 <p class="note">Speaker, headphone, car, and TV presets provide general tonal profiles rather than device-specific calibration.</p>
 <canvas id="eqCurveCanvas" width="360" height="68" aria-label="Equalizer frequency response curve"></canvas>
 <div style="display:flex;gap:8px;margin-bottom:10px">
-<button class="wide sw" id="eqLink" role="switch" aria-checked="false" style="margin-top:0;flex:1">Link Nearby EQ Sliders (Wave Curve)</button>
+<button class="wide sw" id="eqLink" role="switch" aria-checked="false" style="margin-top:0;flex:1">Link Nearby Sliders</button>
 <button class="chip" id="eqFlatBtn" type="button" title="Reset all 15 bands to 0 dB (Flat)">Flat / Reset</button>
 </div>
 <div class="scrollx" id="presets" role="group" aria-label="Equalizer presets"></div>
@@ -1159,7 +1147,7 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
 <button class="wide sw" id="vis3" role="switch" aria-checked="false">3D Bass Reactive Pulse</button>
 <div id="fxC" style="margin-top:12px"></div>
 </div>
-<button class="wide ac" id="fxReset">Reset Audio Engine</button>
+<button class="wide ac" id="fxReset">Reset Audio settings</button>
 </section>
 
 <section class="sheet side" id="th" aria-label="Themes">
@@ -1362,7 +1350,9 @@ const icon=n=>`<svg viewBox="0 0 24 24"><path d="${P[n]||P.info}"/></svg>`;
 const setIcon=(b,n)=>{if(b)b.innerHTML=icon(n)};
 $$('[data-i]').forEach(b=>setIcon(b,b.dataset.i));
 
-const dwEl=$('#dw'),discEl=$('#disc'),visCanvas=$('#visCanvas'),visCtx=visCanvas.getContext('2d',{alpha:true,desynchronized:true})||visCanvas.getContext('2d');
+/* IMPORTANT: Do NOT pass desynchronized:true on visCanvas — in Windows Edge/Chromium DirectComposition,
+   desynchronized 2D canvases disable alpha blending with the background DOM and render cleared pixels as a solid black box! */
+const dwEl=$('#dw'),discEl=$('#disc'),visCanvas=$('#visCanvas'),visCtx=visCanvas.getContext('2d',{alpha:true});
 const eqCurveCanvas=$('#eqCurveCanvas'),eqCurveCtx=eqCurveCanvas.getContext('2d');
 const titleEl=$('#title'),tmaskEl=$('#tmask'),tboxEl=$('#tbox'),subEl=$('#sub');
 const curEl=$('#cur'),totEl=$('#tot'),seekEl=$('#seek'),bufBarEl=$('#bufBar'),playBtnEl=$('#play');
@@ -1505,7 +1495,7 @@ const save=()=>{
 const S={lib:new Map(),queue:[],pos:-1,pl:Object.create(null),filter:{k:'all'},hist:[],shuffle:false,repeat:'off',up:null,upFor:-1};
 const cache=new Map();
 const activeDownloads=new Map();
-let ctx,mode='file',intent=false,switching=false,token=0,errs=0,pt=0,LS=null,LN=null,raf=0,freqBuf,timeBuf,apOn=false,manual=false,visOn=false,hrtfOn=true,apLast=0,ang=0,drag=false,irT=0,activeBlobUrl=null;
+let ctx,mode='file',intent=false,switching=false,token=0,errs=0,pt=0,LS=null,LN=null,raf=0,freqBuf,timeBuf,apOn=false,manual=false,visOn=false,hrtfOn=true,apLast=0,ang=0,orbitPhase=0,drag=false,irT=0,activeBlobUrl=null;
 let hz432On=false,tubeOn=false,limOn=true,specOn=true,eqLinkOn=false,accentColorHex='hsl(350, 90%, 66%)',accentFillRgba='hsla(350, 90%, 66%, 0.18)',lastAppliedRate=1;
 const N={};
 
@@ -1552,24 +1542,34 @@ const row=(lab,at,fmtFn)=>{
   return[r,s,vEl];
 };
 const fxIn={},fxVal={},eqIn=[],eqVal=[],eqRows=[],eqFloat=[],thIn={},presetButtons=new Map();
-const T=(p,v,tc=.055)=>{
+const T=(p,v,tc=.05)=>{
   if(ctx&&p){
-    try{p.setTargetAtTime(v,ctx.currentTime,tc)}catch(_){p.value=v}
+    try{
+      const now=ctx.currentTime;
+      p.cancelScheduledValues(now);
+      p.setTargetAtTime(v,now,tc);
+    }catch(_){p.value=v}
   }
 };
 
+/* Anti-Crackling Smart Headroom Compensation across EQ, Bass, Tone, Reverb, and Volume */
 function updateEqHeadroom(){
   if(!ctx||!N.pre)return;
-  let maxBoost=0;
+  let maxBoost=0,energySum=0;
   for(let i=0;i<eqFloat.length;i++){
-    if(eqFloat[i]>maxBoost)maxBoost=eqFloat[i];
+    const g=eqFloat[i];
+    if(g>maxBoost)maxBoost=g;
+    if(g>0)energySum+=g*0.18;
   }
   const subBoost=+fxIn.sub?.value||0;
   const midBassBoost=Math.max(0,+fxIn.midbass?.value||0);
+  const toneBoost=Math.abs(+fxIn.tone?.value||0)*0.7;
   const airBoost=+fxIn.air?.value||0;
-  const totalPeak=Math.max(maxBoost,subBoost*0.75,midBassBoost*0.65,airBoost*0.6);
-  const atten=totalPeak>1.5?Math.pow(10,-((totalPeak-1.5)*0.52)/20):1;
-  T(N.pre.gain,0.5*atten,0.07);
+  const wetAmt=+fxIn.wet?.value||0;
+  const volAmt=+fxIn.vol?.value||1;
+  const totalPeak=Math.max(maxBoost,energySum*0.55,subBoost*0.8,midBassBoost*0.7,toneBoost,airBoost*0.6)+(wetAmt>0.4?(wetAmt-0.4)*3:0)+(volAmt>1?(volAmt-1)*4.5:0);
+  const atten=totalPeak>1.0?Math.pow(10,-((totalPeak-1.0)*0.58)/20):1;
+  T(N.pre.gain,clamp(0.46*atten,0.08,0.52),0.065);
 }
 
 const EQ_LINK_WEIGHTS=[1,0.68,0.38,0.16];
@@ -1746,7 +1746,7 @@ Object.keys(PRE).forEach(n=>{
   $('#presets').append(b);
 });
 
-/* Compact 1024-sample WaveShaper Lookup Tables (8x lower RAM than 8192) */
+/* Compact 1024-sample WaveShaper Lookup Tables + Zero-Latency Anti-Crackle Soft Clipper */
 function buildTubeCurve(amount){
   const n=1024,curve=new Float32Array(n);
   if(amount<=0){
@@ -1760,7 +1760,23 @@ function buildTubeCurve(amount){
   }
   return curve;
 }
-const linearCurve=buildTubeCurve(0),warmTubeCurve=buildTubeCurve(0.55);
+function buildSoftClipCurve(){
+  const n=1024,curve=new Float32Array(n);
+  const knee=0.82;
+  for(let i=0;i<n;i++){
+    const x=i*2/(n-1)-1;
+    const ax=Math.abs(x);
+    if(ax<=knee){
+      curve[i]=x;
+    }else{
+      const sign=x<0?-1:1;
+      const excess=(ax-knee)/(1-knee);
+      curve[i]=sign*(knee+(1-knee)*Math.tanh(excess));
+    }
+  }
+  return curve;
+}
+const linearCurve=buildTubeCurve(0),warmTubeCurve=buildTubeCurve(0.55),softClipCurve=buildSoftClipCurve();
 
 function updatePlaybackSpeedAndPitch(force){
   const baseSpeed=+fxIn.speed.value||1;
@@ -1777,29 +1793,39 @@ function updatePlaybackSpeedAndPitch(force){
   discEl.style.animationDuration=(8/effectiveRate).toFixed(2)+'s';
 }
 
+/* Smooth Constant-Power 3D Spatial Crossfade (Zero Binary Clicks) */
 function updateSpatialRouting(){
   if(!ctx||!N.stereoBypass||!N.panGain)return;
   const h=+fxIn.height.value;
   const d=+fxIn.depth.value;
   const r=+fxIn.radius.value;
-  const spatialActive=apOn||manual||Math.abs(h)>0.05||Math.abs(d-5)>0.05||Math.abs(r-5)>0.05;
   if(N.pan){
     try{N.pan.panningModel=hrtfOn?'HRTF':'equalpower'}catch(_){N.pan.panningModel='equalpower'}
   }
-  T(N.stereoBypass.gain,spatialActive?0:1,0.06);
-  T(N.panGain.gain,spatialActive?1:0,0.06);
+  let blend=0;
+  if(apOn||manual){
+    blend=1;
+  }else{
+    const disp=Math.hypot(h*0.15,(d-5)*0.12,(r-5)*0.12);
+    blend=clamp(disp,0,1);
+  }
+  const bypassGain=Math.cos(blend*Math.PI*0.5);
+  const spatialGain=Math.sin(blend*Math.PI*0.5)*1.12;
+  T(N.stereoBypass.gain,bypassGain,0.065);
+  T(N.panGain.gain,spatialGain,0.065);
 }
 
 function updateStereoWidthNodes(w){
   if(!ctx||!N.msMidL)return;
   const width=clamp(w,0,2);
-  const same=0.5*(1+width);
-  const cross=0.5*(1-width);
+  const norm=width>1?1/(1+(width-1)*0.22):1;
+  const same=0.5*(1+width)*norm;
+  const cross=0.5*(1-width)*norm;
   T(N.msLL.gain,same,0.05);
   T(N.msRL.gain,cross,0.05);
   T(N.msLR.gain,cross,0.05);
   T(N.msRR.gain,same,0.05);
-  const haas=width>1?(width-1)*0.18:0;
+  const haas=width>1?(width-1)*0.14:0;
   T(N.widthGain.gain,haas,0.06);
 }
 
@@ -1810,24 +1836,24 @@ function applyOne(k){
     updatePlaybackSpeedAndPitch(false);
   }
   if(!ctx)return;
-  if(k==='vol')T(N.master.gain,v);
-  else if(k==='tone'){T(N.lo.gain,-v*1.35);T(N.hi.gain,v*1.35)}
-  else if(k==='sub'){T(N.sub.gain,v);updateEqHeadroom()}
-  else if(k==='midbass'){T(N.midbass.gain,v);updateEqHeadroom()}
-  else if(k==='air'){T(N.air.gain,v);updateEqHeadroom()}
-  else if(k==='dry')T(N.dry.gain,v);
-  else if(k==='wet')T(N.wet.gain,v);
+  if(k==='vol'){T(N.master.gain,v,0.05);updateEqHeadroom()}
+  else if(k==='tone'){T(N.lo.gain,-v*1.3,0.05);T(N.hi.gain,v*1.3,0.05);updateEqHeadroom()}
+  else if(k==='sub'){T(N.sub.gain,v,0.05);updateEqHeadroom()}
+  else if(k==='midbass'){T(N.midbass.gain,v,0.05);updateEqHeadroom()}
+  else if(k==='air'){T(N.air.gain,v,0.05);updateEqHeadroom()}
+  else if(k==='dry')T(N.dry.gain,v,0.05);
+  else if(k==='wet'){T(N.wet.gain,v,0.05);updateEqHeadroom()}
   else if(k==='width')updateStereoWidthNodes(v);
   else if(k==='pan'){
-    if(N.stereoPan)T(N.stereoPan.pan,clamp(v,-1,1),.04);
+    if(N.stereoPan)T(N.stereoPan.pan,clamp(v,-1,1),.045);
   }
   else if(k==='comp'){
     T(N.comp.threshold,-24+(100-v)*0.14);
     T(N.comp.ratio,1.2+v/40);
     T(N.comp.knee,22);
-    T(N.comp.attack,.045);
-    T(N.comp.release,.24);
-    T(N.mk.gain,1+v/100*0.18);
+    T(N.comp.attack,.035);
+    T(N.comp.release,.22);
+    T(N.mk.gain,1+v/100*0.12);
   }
   else if(k==='room'||k==='reflect')ir();
   else if(k==='radius'||k==='height'||k==='depth'){pos();updateSpatialRouting()}
@@ -1859,8 +1885,8 @@ $('#limSw').onclick=function(){
   this.setAttribute('aria-checked',String(limOn));
   engine();
   if(N.lim){
-    T(N.lim.threshold,limOn?-0.6:0,.04);
-    T(N.lim.ratio,limOn?14:1,.04);
+    T(N.lim.threshold,limOn?-1.2:0,.04);
+    T(N.lim.ratio,limOn?16:1,.04);
   }
   toast(limOn?'Peak Safety Limiter active':'Peak Safety Limiter bypassed');
 };
@@ -1869,7 +1895,10 @@ $('#specSw').onclick=function(){
   specOn=!specOn;
   this.classList.toggle('on',specOn);
   this.setAttribute('aria-checked',String(specOn));
-  if(!specOn)visCtx.clearRect(0,0,visCanvas.width,visCanvas.height);
+  if(!specOn){
+    visCtx.clearRect(0,0,visCanvas.width,visCanvas.height);
+    visCanvas.classList.remove('active');
+  }
   scheduleFrameLoop();
 };
 
@@ -1882,7 +1911,7 @@ $('#hrtfSw').onclick=function(){
   toast(hrtfOn?'HRTF Binaural 3D Spatial mode active':'Equal-Power 3D Panning active');
 };
 
-let lastIrKey='';
+let lastIrKey='',irSwapTimer=0;
 function ir(immediate=false){
   clearTimeout(irT);
   irT=setTimeout(()=>{
@@ -1902,11 +1931,11 @@ function ir(immediate=false){
       let lp=0;
       const earlyTap1=Math.min(len-1,Math.floor(sr*(c===0?0.017:0.023)));
       const earlyTap2=Math.min(len-1,Math.floor(sr*(c===0?0.034:0.041)));
-      h[earlyTap1]=0.26*(c===0?1:-1);
-      h[earlyTap2]=0.16;
+      h[earlyTap1]=0.24*(c===0?1:-1);
+      h[earlyTap2]=0.14;
       for(let i=preDelay;i<len;i++){
         const t=(i-preDelay)/(len-preDelay);
-        const env=Math.pow(1-t,decay)*0.24;
+        const env=Math.pow(1-t,decay)*0.22;
         const white=(Math.random()*2-1)*env;
         lp=lp+damp*(white-lp);
         h[i]+=lp;
@@ -1918,24 +1947,39 @@ function ir(immediate=false){
       T(N.wet.gain,targetWet,.04);
       return;
     }
-    T(N.wet.gain,.0005,.015);
-    setTimeout(()=>{
+    /* Silent fade-down before buffer swap to guarantee zero convolver click */
+    clearTimeout(irSwapTimer);
+    T(N.wet.gain,0.0001,.015);
+    irSwapTimer=setTimeout(()=>{
       if(!ctx||!N.conv)return;
       N.conv.buffer=b;
-      T(N.wet.gain,+fxIn.wet.value,.045);
-    },28);
-  },immediate?0:200);
+      T(N.wet.gain,+fxIn.wet.value,.05);
+    },55);
+  },immediate?0:220);
 }
 
+/* Ultra-Level 3D Sound Motion with Acoustic Pinna & Distance Air-Absorption */
 function pos(){
-  const R=+fxIn.radius.value,D=+fxIn.depth.value,h=+fxIn.height.value;
-  const active=apOn||manual||Math.abs(h)>0.05||Math.abs(D-5)>0.05||Math.abs(R-5)>0.05;
+  const R=+fxIn.radius.value,D=+fxIn.depth.value,baseH=+fxIn.height.value;
+  const active=apOn||manual||Math.abs(baseH)>0.05||Math.abs(D-5)>0.05||Math.abs(R-5)>0.05;
+  /* During Auto 3D Orbit, add subtle natural 3D elevation breathing so sound orbits in true 3D space */
+  const breathY=apOn?Math.sin(orbitPhase*0.5)*2.2:0;
+  const h=clamp(baseH+breathY,-10,10);
   const x=active?Math.cos(ang)*R:0;
   const z=active?Math.sin(ang)*D:-1;
   if(ctx&&N.pan){
-    T(N.pan.positionX,x,.06);
-    T(N.pan.positionY,h,.06);
-    T(N.pan.positionZ,z,.06);
+    T(N.pan.positionX,x,.05);
+    T(N.pan.positionY,h,.05);
+    T(N.pan.positionZ,z,.05);
+    /* Acoustic Pinna Shadowing & Distance Air Absorption:
+       When sound is behind the head (z > 0) or far away, gently roll off ultra-highs for realistic 3D depth */
+    if(N.spatialLP){
+      const dist=Math.hypot(x,h,z);
+      const rearFactor=z>0?clamp(z/Math.max(1,D),0,1):0;
+      const distFactor=clamp((dist-2)/22,0,1);
+      const targetFreq=active?clamp(19000-rearFactor*6800-distFactor*4200,5200,19500):19500;
+      T(N.spatialLP.frequency,targetFreq,.065);
+    }
   }
   pad.setAttribute('aria-valuenow',x.toFixed(1));
   if(!fxSheetEl.classList.contains('open'))return;
@@ -1968,6 +2012,7 @@ $('#apan').onclick=()=>autoPan(!apOn);
 $('#ctr').onclick=()=>{
   manual=false;
   ang=0;
+  orbitPhase=0;
   autoPan(false);
   fxIn.radius.value=5;
   fxIn.height.value=0;
@@ -2040,7 +2085,7 @@ function engine(){
   const g=v=>{const n=c.createGain();n.gain.value=v;return n};
 
   N.src=c.createMediaElementSource(A);
-  N.pre=g(.5);
+  N.pre=g(.46);
   N.sub=bq('peaking',50,1.1);
   N.midbass=bq('peaking',140,1.15);
   N.lo=bq('lowshelf',320);
@@ -2055,12 +2100,13 @@ function engine(){
   N.stereoPan=c.createStereoPanner?c.createStereoPanner():null;
 
   N.stereoBypass=g(1);
+  N.spatialLP=bq('lowpass',19500,0.707);
   N.pan=c.createPanner();
   try{N.pan.panningModel=hrtfOn?'HRTF':'equalpower'}catch(_){N.pan.panningModel='equalpower'}
   N.pan.distanceModel='inverse';
   N.pan.refDistance=5;
   N.pan.maxDistance=50;
-  N.pan.rolloffFactor=.42;
+  N.pan.rolloffFactor=.38;
   N.panGain=g(0);
   N.stageMix=g(1);
 
@@ -2086,16 +2132,21 @@ function engine(){
   N.comp.threshold.value=-24+(100-initComp)*0.14;
   N.comp.knee.value=22;
   N.comp.ratio.value=1.2+initComp/40;
-  N.comp.attack.value=0.045;
-  N.comp.release.value=0.24;
-  N.mk=g(1+initComp/100*0.18);
+  N.comp.attack.value=0.035;
+  N.comp.release.value=0.22;
+  N.mk=g(1+initComp/100*0.12);
 
   N.lim=c.createDynamicsCompressor();
-  N.lim.threshold.value=limOn?-0.6:0;
+  N.lim.threshold.value=limOn?-1.2:0;
   N.lim.knee.value=4;
-  N.lim.ratio.value=limOn?14:1;
-  N.lim.attack.value=0.005;
-  N.lim.release.value=0.14;
+  N.lim.ratio.value=limOn?16:1;
+  N.lim.attack.value=0.003;
+  N.lim.release.value=0.12;
+
+  /* Sample-Accurate Zero-Latency Soft Clipper to prevent any transient crackle */
+  N.softClip=c.createWaveShaper();
+  N.softClip.curve=softClipCurve;
+  N.softClip.oversample='none';
 
   N.an=c.createAnalyser();
   N.an.fftSize=128;
@@ -2109,7 +2160,8 @@ function engine(){
   const lastPreStage=chain[chain.length-1];
   lastPreStage.connect(N.stereoBypass);
   N.stereoBypass.connect(N.stageMix);
-  lastPreStage.connect(N.pan);
+  lastPreStage.connect(N.spatialLP);
+  N.spatialLP.connect(N.pan);
   N.pan.connect(N.panGain);
   N.panGain.connect(N.stageMix);
 
@@ -2134,7 +2186,7 @@ function engine(){
 
   N.dry.connect(N.master);
   N.wet.connect(N.master);
-  [N.master,N.comp,N.mk,N.lim,N.an,N.fade,c.destination].reduce((a,b)=>(a.connect(b),b));
+  [N.master,N.comp,N.mk,N.lim,N.softClip,N.an,N.fade,c.destination].reduce((a,b)=>(a.connect(b),b));
 
   N.eq.forEach((b,i)=>{b.gain.value=eqFloat[i]});
   ir(true);
@@ -2145,7 +2197,7 @@ function engine(){
   c.onstatechange=()=>{if(intent&&c.state!=='running')c.resume().catch(()=>{})};
 }
 
-/* Precomputed Trig Lookup Tables & Batched Path Visualizer (5x faster Canvas rendering) */
+/* Precomputed Trig Lookup Tables & Batched Path Visualizer */
 const VIS_BARS=36;
 const VIS_COS=new Float32Array(VIS_BARS);
 const VIS_SIN=new Float32Array(VIS_BARS);
@@ -2202,7 +2254,6 @@ function drawVisualizer(freqData,timeData,bassNorm){
   visCtx.clearRect(0,0,w,h);
   visCtx.strokeStyle=accentColorHex;
 
-  /* 1. Continuous 360-degree Waveform Ring (single batched path using precomputed trig) */
   if(timeData&&timeData.length){
     visCtx.beginPath();
     const scale=baseR*0.08;
@@ -2220,7 +2271,6 @@ function drawVisualizer(freqData,timeData,bassNorm){
     visCtx.stroke();
   }
 
-  /* 2. Batched Radial Spectrum Halo Bars (2 batched stroke calls instead of 36+) */
   const maxBarLen=Math.min(w,h)*0.082;
   const rInner=baseR+2;
   visCtx.lineWidth=Math.max(2.2,w*0.0085);
@@ -2258,18 +2308,25 @@ function scheduleFrameLoop(){
   raf=0;
   clearInterval(bgPanTimer);
   bgPanTimer=0;
-  if(!ctx)return;
+  if(!ctx){
+    visCanvas.classList.remove('active');
+    return;
+  }
   if(document.hidden){
     dwEl.style.setProperty('--pulse','1');
     dwEl.style.setProperty('--halo','0.15');
+    visCanvas.classList.remove('active');
     if(apOn){
       apLast=performance.now();
       bgPanTimer=setInterval(()=>{
         const now=performance.now();
-        ang+=+fxIn.pspeed.value*(now-apLast)/16.7;
+        const dt=Math.min(50,Math.max(0,now-apLast));
+        const delta=+fxIn.pspeed.value*(dt/16.7);
+        ang=(ang+delta)%(Math.PI*2);
+        orbitPhase=(orbitPhase+delta)%(Math.PI*4);
         apLast=now;
         pos();
-      },140);
+      },120);
     }
     return;
   }
@@ -2278,8 +2335,10 @@ function scheduleFrameLoop(){
     dwEl.style.setProperty('--halo','0.15');
     lastPulse=1;
     visCtx.clearRect(0,0,visCanvas.width,visCanvas.height);
+    visCanvas.classList.remove('active');
     return;
   }
+  visCanvas.classList.toggle('active',Boolean(intent&&specOn));
   apLast=performance.now();
   const frameInterval=reduceMotionMQ.matches?80:(isLowPowerDevice?38:26);
   const step=now=>{
@@ -2287,7 +2346,11 @@ function scheduleFrameLoop(){
     if(now-lastVis<frameInterval)return;
     lastVis=now;
     if(apOn){
-      ang+=+fxIn.pspeed.value*(now-apLast)/16.7;
+      /* Clamp dt to max 48ms so returning from a closed panel or background tab NEVER teleports PannerNode! */
+      const dt=Math.min(48,Math.max(0,now-apLast));
+      const delta=+fxIn.pspeed.value*(dt/16.7);
+      ang=(ang+delta)%(Math.PI*2);
+      orbitPhase=(orbitPhase+delta)%(Math.PI*4);
       apLast=now;
       pos();
     }
@@ -2390,7 +2453,7 @@ async function start(expectedToken=token){
   intent=true;
   if(ctx&&ctx.state!=='running')await ctx.resume().catch(()=>{});
   if(expectedToken!==token)return;
-  T(N.fade.gain,1,.03);
+  T(N.fade.gain,1,.035);
   ui();
   if(mode!=='live'){
     const p=A.play();
@@ -2414,8 +2477,8 @@ function halt(){
   ui();
   if(mode==='live')return;
   if(ctx&&!document.hidden&&!A.paused){
-    T(N.fade.gain,.0001,.015);
-    pt=setTimeout(()=>{pt=0;if(!intent)A.pause()},48);
+    T(N.fade.gain,.0001,.018);
+    pt=setTimeout(()=>{pt=0;if(!intent)A.pause()},55);
   }else{
     A.pause();
   }
@@ -2897,7 +2960,13 @@ const finishSeek=()=>{
   const m=S.lib.get(S.queue[S.pos]);
   const d=Number.isFinite(A.duration)&&A.duration>0?A.duration:(m?.dur||NaN);
   if(Number.isFinite(d)&&d>0){
-    try{A.currentTime=clamp(+seekEl.value,0,d)}catch(_){}
+    try{
+      if(ctx&&N.fade&&intent){
+        T(N.fade.gain,0.15,0.008);
+        setTimeout(()=>{if(ctx&&N.fade&&intent)T(N.fade.gain,1,0.025)},25);
+      }
+      A.currentTime=clamp(+seekEl.value,0,d);
+    }catch(_){}
   }
   ps();
 };
@@ -3587,7 +3656,7 @@ $('#wipe').onclick=async()=>{
   renderQ();
 };
 $('#qShuf').onclick=()=>{
-  const h=S.queue.slice(0,S.pos+1),t=S.queue.slice(0,S.pos+1>=S.queue.length?0:S.pos+1);
+  const h=S.queue.slice(0,S.pos+1);
   const rest=S.queue.slice(S.pos+1);
   for(let i=rest.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]]}
   S.queue=h.concat(rest);
@@ -3611,18 +3680,28 @@ $$('#lib .tabs button').forEach(b=>b.onclick=()=>{
   $('#pl').classList.toggle('on',b.dataset.t==='l');
 });
 
-/* Smooth Drawer Opening/Closing with Motion Blur & Deferred Heavy Redraws */
+/* Glitch-Free Drawer Open/Close with TransitionEnd Cleanup (Never Snaps Mid-Way) */
+allSheets.forEach(s=>{
+  s.addEventListener('transitionend',e=>{
+    if(e.target===s&&e.propertyName==='transform'){
+      clearTimeout(s._mbTimer);
+      s.classList.remove('animating');
+    }
+  });
+});
+
 function triggerSheetMotion(s,open){
   if(!s)return;
   if(s.id==='lib'&&wideMQ.matches)return;
   const wasOpen=s.classList.contains('open');
   if(wasOpen===open)return;
   clearTimeout(s._mbTimer);
-  if(!reduceMotionMQ.matches)s.classList.add('animating');
+  if(!reduceMotionMQ.matches){
+    s.classList.add('animating');
+    /* Clear blur smoothly near the end of the slide so it never snaps mid-way */
+    s._mbTimer=setTimeout(()=>s.classList.remove('animating'),220);
+  }
   s.classList.toggle('open',open);
-  s._mbTimer=setTimeout(()=>{
-    s.classList.remove('animating');
-  },340);
 }
 
 function openSheet(id){
@@ -3636,6 +3715,7 @@ function openSheet(id){
   if(id==='lib')requestAnimationFrame(mark);
   if(id==='fx'){
     requestAnimationFrame(()=>{
+      apLast=performance.now();
       pos();
       scheduleEqCurveDraw();
       scheduleFrameLoop();
@@ -3649,10 +3729,11 @@ $('#abBtn').onclick=()=>openSheet('ab');
 $$('[data-close]').forEach(b=>b.onclick=()=>{
   const target=$('#'+b.dataset.close);
   if(target)triggerSheetMotion(target,false);
+  apLast=performance.now();
   requestAnimationFrame(scheduleFrameLoop);
 });
 
-/* Ultra-Fast rAF-Coalesced Theme Engine (Zero CSS Transition Lag, Precomputed Derived Colors) */
+/* Ultra-Fast rAF-Coalesced Theme Engine */
 const themeMetaEl=$('meta[name=theme-color]');
 let themeRaf=0,themeDragTimer=0;
 function applyThemeNow(syncMeta=false){
@@ -3739,6 +3820,7 @@ $('#fxReset').onclick=()=>{
   if(eqLinkOn)$('#eqLink').click();
   manual=false;
   ang=0;
+  orbitPhase=0;
   autoPan(false);
   Object.keys(fxIn).forEach(applyOne);
   updateEqHeadroom();
@@ -3748,11 +3830,19 @@ $('#fxReset').onclick=()=>{
 };
 
 document.addEventListener('visibilitychange',()=>{
+  apLast=performance.now();
   if(ctx&&intent&&ctx.state!=='running')ctx.resume().catch(()=>{});
   scheduleFrameLoop();
   if(!document.hidden&&apOn)pos();
 });
-addEventListener('pageshow',()=>{if(ctx&&intent&&ctx.state!=='running')ctx.resume().catch(()=>{})});
+window.addEventListener('focus',()=>{
+  apLast=performance.now();
+  if(ctx&&intent&&ctx.state!=='running')ctx.resume().catch(()=>{});
+});
+addEventListener('pageshow',()=>{
+  apLast=performance.now();
+  if(ctx&&intent&&ctx.state!=='running')ctx.resume().catch(()=>{});
+});
 addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     M.classList.remove('on');
@@ -3760,6 +3850,7 @@ addEventListener('keydown',e=>{
     if($('#warnDlg').classList.contains('open')){$('#warnCancel').click();return}
     if($('#dlg').classList.contains('open')){$('#dlgNo').click();return}
     allSheets.forEach(s=>{if(s.classList.contains('open')&&(s.id!=='lib'||!wideMQ.matches))triggerSheetMotion(s,false)});
+    apLast=performance.now();
     scheduleFrameLoop();
     return;
   }
@@ -3900,7 +3991,7 @@ $('#tutNext').onclick=()=>{
 };
 $('#tutClose').onclick=()=>tutDlg.classList.remove('open');
 
-/* Online Direct Audio Hub (Direct Provider Streaming — Optional Gateway Removed) */
+/* Online Direct Audio Hub */
 let onlineEnabled=false;
 let warningAcknowledged=false;
 let hubMode='all';

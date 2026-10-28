@@ -21,24 +21,17 @@
   --platter-d:#c3c8d6;
   --tx:#4a4e69;
   --vh:1vh;
-  --vvh:100vh;
-  --vvt:0px;
-}
-@supports (height:100dvh){
-  :root{--vvh:100dvh}
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{
   width:100%;
   height:100%;
   height:calc(var(--vh, 1vh) * 100);
-  height:var(--vvh, 100dvh);
   overflow:hidden;
-  overflow:clip;
   overscroll-behavior:none;
 }
 @supports (height:100dvh){
-  html,body{height:var(--vvh, 100dvh)}
+  html,body{height:100dvh}
 }
 body{
   position:fixed;
@@ -46,8 +39,10 @@ body{
   background:linear-gradient(135deg,var(--bg),var(--bg2));
   color:var(--tx);
   font:700 13px/1.38 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  contain:layout style;
 }
+/* Suppress expensive transitions during live theme slider dragging for zero-lag 120fps response */
 html.theme-dragging *,html.theme-dragging *::before,html.theme-dragging *::after{
   transition:none!important;
 }
@@ -61,7 +56,7 @@ button{
   border:0;
   cursor:pointer;
   background:var(--bg);
-  transition:transform .14s cubic-bezier(.2,.8,.2,1),opacity .18s,box-shadow .18s;
+  transition:transform .14s cubic-bezier(.2,.8,.2,1),opacity .18s;
 }
 button:disabled{cursor:not-allowed;opacity:.42}
 input{font:inherit;color:inherit}
@@ -72,65 +67,42 @@ input{font:inherit;color:inherit}
   box-shadow:inset 4px 4px 8px var(--sd),inset -4px -4px 8px var(--sl);
 }
 .app{
-  position:relative;
   width:100%;
   height:100%;
   display:grid;
   grid-template-columns:1fr;
   grid-template-rows:minmax(0,1fr);
   overflow:hidden;
-  overflow:clip;
 }
 .player{
   display:grid;
-  grid-template-rows:auto minmax(104px,1fr) 70px 32px auto;
+  grid-template-rows:auto minmax(112px,1fr) 68px 30px auto;
   align-items:center;
-  gap:clamp(6px,1.5vh,14px);
+  gap:clamp(6px,1.6vh,14px);
   width:100%;
-  max-width:480px;
+  max-width:470px;
   height:100%;
   margin:0 auto;
-  padding:clamp(8px,1.6vh,16px) clamp(12px,3.6vw,22px) clamp(10px,2.2vh,20px);
+  padding:clamp(8px,1.8vh,16px) clamp(12px,3.6vw,22px) clamp(10px,2.2vh,20px);
   min-height:0;
   min-width:0;
   overflow:hidden;
-  transition:opacity .22s ease,transform .22s ease;
-}
-html.mobile-sheet-open .player{
-  pointer-events:none;
-  user-select:none;
-}
-#sheetBackdrop{
-  position:fixed;
-  inset:0;
-  z-index:18;
-  background:rgba(14,16,26,0.28);
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-  transition:opacity .24s ease-out,visibility 0s linear .24s;
-}
-#sheetBackdrop.on{
-  opacity:1;
-  visibility:visible;
-  pointer-events:auto;
-  transition-delay:0s;
+  contain:layout style;
 }
 .bar{
   display:flex;
-  gap:clamp(5px,1.4vw,9px);
+  gap:clamp(5px,1.5vw,9px);
   align-items:center;
   width:100%;
   min-width:0;
 }
 .sp{flex:1;min-width:2px}
 .ib{
-  width:clamp(36px,9.2vw,43px);
-  height:clamp(36px,9.2vw,43px);
+  width:clamp(36px,9.6vw,43px);
+  height:clamp(36px,9.6vw,43px);
   border-radius:13px;
-  padding:clamp(8px,2.1vw,10.5px);
+  padding:clamp(8px,2.2vw,10.5px);
   flex:none;
-  position:relative;
 }
 .ib.on{color:var(--ac)}
 .ib:active:not(:disabled),.ctl button:active:not(:disabled),.wide:active:not(:disabled),.mini:active:not(:disabled),.ib.press,.ctl button.press,.wide.press,.mini.press,.chip.press,.tabs button.press{
@@ -142,7 +114,7 @@ html.mobile-sheet-open .player{
   position:relative;
   width:100%;
   height:100%;
-  min-height:100px;
+  min-height:110px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -203,8 +175,8 @@ html.mobile-sheet-open .player{
 .disc{
   position:relative;
   z-index:2;
-  width:clamp(116px,min(54vw,29vh),256px);
-  height:clamp(116px,min(54vw,29vh),256px);
+  width:clamp(120px,min(56vw,29vh),256px);
+  height:clamp(120px,min(56vw,29vh),256px);
   aspect-ratio:1/1;
   border-radius:50%;
   background-color:#12131c;
@@ -224,10 +196,11 @@ html.mobile-sheet-open .player{
 .disc.spinning{will-change:transform}
 @supports (width:1dvh){
   .disc{
-    width:clamp(116px,min(54vw,29dvh),256px);
-    height:clamp(116px,min(54vw,29dvh),256px);
+    width:clamp(120px,min(56vw,29dvh),256px);
+    height:clamp(120px,min(56vw,29dvh),256px);
   }
 }
+/* 3D Vinyl Grooves & Specular Light Sheen */
 .disc::before{
   content:"";
   position:absolute;
@@ -249,6 +222,7 @@ html.mobile-sheet-open .player{
     );
   pointer-events:none;
 }
+/* 3D Vinyl Center Label & Spindle Hole */
 .disc::after{
   content:"";
   position:absolute;
@@ -274,13 +248,12 @@ html.mobile-sheet-open .player{
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 .info{
-  position:relative;
   width:100%;
-  height:70px;
-  min-height:70px;
-  max-height:70px;
+  height:68px;
+  min-height:68px;
+  max-height:68px;
   border-radius:16px;
-  padding:9px 44px 9px 14px;
+  padding:9px 14px;
   text-align:center;
   overflow:hidden;
   display:flex;
@@ -288,20 +261,8 @@ html.mobile-sheet-open .player{
   justify-content:center;
   align-items:center;
   min-width:0;
+  contain:strict;
 }
-.info-fav{
-  position:absolute;
-  right:8px;
-  top:50%;
-  transform:translateY(-50%);
-  width:30px;
-  height:30px;
-  padding:6px;
-  border-radius:10px;
-  box-shadow:3px 3px 6px var(--sd),-3px -3px 6px var(--sl);
-}
-.info-fav.on{color:var(--ac)}
-.info-fav:active:not(:disabled){transform:translateY(-50%) scale(.92)}
 .title-mask{
   width:100%;
   height:23px;
@@ -315,7 +276,7 @@ html.mobile-sheet-open .player{
 #title{
   display:inline-block;
   white-space:nowrap;
-  font-size:clamp(14.5px,3.6vw,17px);
+  font-size:clamp(14.5px,3.8vw,17px);
   line-height:22px;
   font-weight:800;
   color:var(--ac);
@@ -335,7 +296,7 @@ html.mobile-sheet-open .player{
   height:16px;
   line-height:16px;
   margin-top:4px;
-  opacity:.78;
+  opacity:.76;
   font-size:11px;
   white-space:nowrap;
   overflow:hidden;
@@ -343,7 +304,7 @@ html.mobile-sheet-open .player{
 }
 .time{
   width:100%;
-  height:32px;
+  height:30px;
   display:flex;
   align-items:center;
   gap:10px;
@@ -361,7 +322,7 @@ html.mobile-sheet-open .player{
   position:relative;
   flex:1;
   min-width:0;
-  height:26px;
+  height:24px;
   display:flex;
   align-items:center;
 }
@@ -380,7 +341,7 @@ input[type=range]{
   appearance:none;
   width:100%;
   background:transparent;
-  height:26px;
+  height:24px;
   touch-action:pan-y;
   position:relative;
   z-index:1;
@@ -429,30 +390,18 @@ input[type=range]:active:not(:disabled)::-moz-range-thumb{transform:scale(1.2)}
   gap:8px;
 }
 .ctl button{
-  width:clamp(44px,11.8vw,54px);
-  height:clamp(44px,11.8vw,54px);
+  width:clamp(44px,12vw,54px);
+  height:clamp(44px,12vw,54px);
   border-radius:50%;
-  padding:clamp(12px,3.2vw,16px);
+  padding:clamp(12px,3.3vw,16px);
   flex:none;
 }
 .ctl .play{
-  width:clamp(60px,16vw,74px);
-  height:clamp(60px,16vw,74px);
-  padding:clamp(17px,4.6vw,22px);
+  width:clamp(60px,16.5vw,74px);
+  height:clamp(60px,16.5vw,74px);
+  padding:clamp(17px,4.8vw,22px);
   background:var(--ac);
   color:#fff;
-  position:relative;
-}
-.ctl .play.buffering::after{
-  content:"";
-  position:absolute;
-  inset:-4px;
-  border-radius:50%;
-  border:2.5px solid transparent;
-  border-top-color:var(--ac);
-  border-right-color:var(--ac);
-  animation:spin .85s linear infinite;
-  pointer-events:none;
 }
 .ctl .on{
   color:var(--ac);
@@ -485,12 +434,12 @@ input[type=range]:active:not(:disabled)::-moz-range-thumb{transform:scale(1.2)}
 .sw{
   position:relative;
   text-align:left;
-  padding-right:72px;
+  padding-right:76px;
 }
 .sw::after{
   content:"";
   position:absolute;
-  right:14px;
+  right:16px;
   top:50%;
   width:44px;
   height:24px;
@@ -503,7 +452,7 @@ input[type=range]:active:not(:disabled)::-moz-range-thumb{transform:scale(1.2)}
   content:"";
   position:absolute;
   z-index:1;
-  right:37px;
+  right:39px;
   top:50%;
   width:18px;
   height:18px;
@@ -522,46 +471,43 @@ input[type=range]:active:not(:disabled)::-moz-range-thumb{transform:scale(1.2)}
   opacity:1;
 }
 
-/* Smooth Drawer (Sheet) Transitions */
+/* Interruptible, Glitch-Free Drawer (Sheet) Transitions with Velocity Motion Blur */
 @keyframes paneSlideIn{
-  0%{opacity:.35;transform:translate3d(6px,0,0)}
-  100%{opacity:1;transform:translate3d(0,0,0)}
+  0%{opacity:.3;filter:blur(1.2px);transform:translate3d(8px,0,0)}
+  100%{opacity:1;filter:none;transform:translate3d(0,0,0)}
 }
 .sheet{
   position:fixed;
-  left:0;
+  top:4%;
   right:0;
-  top:calc(var(--vvt, 0px) + max(10px, env(safe-area-inset-top, 0px)));
-  height:calc(var(--vvh, 100dvh) - max(10px, env(safe-area-inset-top, 0px)));
-  max-height:calc(var(--vvh, 100dvh) - max(10px, env(safe-area-inset-top, 0px)));
+  bottom:0;
+  left:0;
   pointer-events:none;
   z-index:20;
   display:flex;
   flex-direction:column;
-  gap:10px;
-  padding:14px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  gap:12px;
+  padding:18px 16px calc(20px + env(safe-area-inset-bottom));
   background:var(--bg);
-  border-radius:26px 26px 0 0;
-  box-shadow:0 -12px 28px rgba(0,0,0,.18);
+  border-radius:28px 28px 0 0;
+  box-shadow:0 -12px 26px rgba(0,0,0,.16);
   overflow-y:auto;
-  overflow-x:hidden;
-  overscroll-behavior:contain;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
-  transform:translate3d(0,105%,0);
+  transform:translate3d(0,104%,0);
   opacity:0;
   visibility:hidden;
+  contain:layout style;
   backface-visibility:hidden;
   transition:
-    transform .28s cubic-bezier(.22,1,.36,1),
-    opacity .2s ease-out,
-    visibility 0s linear .28s;
-}
-#lib{
-  overflow:hidden;
+    transform .3s cubic-bezier(.22,1,.36,1),
+    opacity .22s ease-out,
+    filter .22s ease-out,
+    visibility 0s linear .3s;
 }
 .sheet.animating{
-  will-change:transform,opacity;
+  will-change:transform,opacity,filter;
+  filter:blur(1.4px);
 }
 .sheet.open{
   pointer-events:auto;
@@ -571,9 +517,7 @@ input[type=range]:active:not(:disabled)::-moz-range-thumb{transform:scale(1.2)}
   transition-delay:0s;
 }
 .sheet::-webkit-scrollbar{display:none}
-/* Drawer Header: stays at the top of the drawer (NOT sticky/floating over content while scrolling) */
 .sh{
-  position:relative;
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -585,11 +529,11 @@ input[type=range]:active:not(:disabled)::-moz-range-thumb{transform:scale(1.2)}
   padding:14px;
   border-radius:20px;
   flex:none;
-  min-width:0;
+  contain:layout style;
 }
 .grp h3{
   font-size:11px;
-  letter-spacing:1.1px;
+  letter-spacing:1.2px;
   text-transform:uppercase;
   color:var(--ac);
   margin-bottom:10px;
@@ -624,15 +568,14 @@ input[type=range]:active:not(:disabled)::-moz-range-thumb{transform:scale(1.2)}
   gap:8px;
   font-size:10px;
   text-transform:uppercase;
-  min-width:0;
 }
 .row+.row{margin-top:6px}
-.lab{width:76px;text-align:right;flex:none;opacity:.86;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lab{width:68px;text-align:right;flex:none;opacity:.84}
 .val{
   width:46px;
   text-align:left;
   flex:none;
-  opacity:.78;
+  opacity:.75;
   font-variant-numeric:tabular-nums;
   text-transform:none;
 }
@@ -640,13 +583,12 @@ input[type=range]:active:not(:disabled)::-moz-range-thumb{transform:scale(1.2)}
   display:flex;
   gap:8px;
   overflow-x:auto;
-  padding:5px 4px 8px;
+  padding:6px 4px 10px;
   scrollbar-width:none;
-  flex:none;
 }
 .scrollx::-webkit-scrollbar{display:none}
 .chip{
-  padding:7px 12px;
+  padding:8px 13px;
   border-radius:20px;
   font-size:11px;
   white-space:nowrap;
@@ -658,8 +600,7 @@ input[type=range]:active:not(:disabled)::-moz-range-thumb{transform:scale(1.2)}
 .field{
   display:block;
   width:100%;
-  min-width:0;
-  padding:10px 12px;
+  padding:11px 12px;
   border:0;
   border-radius:12px;
   background:var(--bg);
@@ -669,33 +610,6 @@ input[type=range]:active:not(:disabled)::-moz-range-thumb{transform:scale(1.2)}
   -webkit-appearance:none;
   appearance:none;
   box-shadow:inset 3px 3px 6px var(--sd),inset -3px -3px 6px var(--sl);
-}
-#pl > .field{
-  flex:none;
-}
-/* Search Input + Button Row: guarantees the Search button NEVER goes off-screen on any phone width */
-.search-bar-row{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  width:100%;
-  min-width:0;
-  margin-bottom:8px;
-}
-.search-bar-row .field{
-  flex:1 1 0%;
-  width:auto;
-  min-width:0;
-}
-#hubBtn{
-  flex:0 0 auto;
-  width:auto;
-  height:40px;
-  padding:0 15px;
-  border-radius:12px;
-  color:var(--ac);
-  font-weight:800;
-  white-space:nowrap;
 }
 .field:focus{
   box-shadow:inset 3px 3px 6px var(--sd),inset -3px -3px 6px var(--sl),0 0 0 2px var(--ac);
@@ -732,17 +646,19 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
 }
 .dbox{
   width:min(440px,94vw);
-  max-height:calc(var(--vvh, 100dvh) - 32px);
+  max-height:88vh;
   overflow-y:auto;
   padding:20px;
   border-radius:24px;
   background:var(--bg);
   box-shadow:0 12px 28px rgba(0,0,0,.28);
-  transform:translate3d(0,14px,0) scale(.96);
-  transition:transform .24s cubic-bezier(.22,1,.36,1);
+  transform:translate3d(0,14px,0) scale(.95);
+  filter:blur(1.5px);
+  transition:transform .24s cubic-bezier(.22,1,.36,1),filter .2s ease-out;
 }
 #dlg.open .dbox,#warnDlg.open .dbox,#tutDlg.open .dbox{
   transform:translate3d(0,0,0) scale(1);
+  filter:none;
 }
 .dbox h3{font-size:16px;font-weight:800;margin-bottom:8px;color:var(--ac)}
 .dbox p{font-size:12px;line-height:1.52;opacity:.9;margin-bottom:10px;font-weight:600}
@@ -805,8 +721,6 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
   display:none;
   min-width:190px;
   max-width:min(320px,90vw);
-  max-height:calc(var(--vvh, 100dvh) - 24px);
-  overflow-y:auto;
   padding:8px;
   border-radius:16px;
   background:var(--bg);
@@ -828,11 +742,10 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
   white-space:nowrap;
 }
 #menu button:active{color:var(--ac)}
-.tabs{display:flex;gap:8px;flex:none;width:100%;min-width:0}
+.tabs{display:flex;gap:8px;flex:none}
 .tabs button{
-  flex:1 1 0%;
-  min-width:0;
-  padding:9px 6px;
+  flex:1;
+  padding:10px 6px;
   border-radius:14px;
   font-size:11px;
   white-space:nowrap;
@@ -840,44 +753,34 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
   text-overflow:ellipsis;
 }
 .tabs .on{color:var(--ac)}
-.pane{
-  display:none;
-  flex-direction:column;
-  gap:8px;
-  flex:1 1 0%;
-  min-height:0;
-  overflow:hidden;
-}
+.pane{display:none;flex-direction:column;gap:10px;flex:1;min-height:0}
 .pane.on{
   display:flex;
   animation:paneSlideIn .2s cubic-bezier(.22,1,.36,1);
 }
-.tools{display:flex;gap:8px;flex-wrap:wrap;flex:none;align-items:center}
+.tools{display:flex;gap:8px;flex-wrap:wrap;flex:none}
 .list{
-  flex:1 1 0%;
-  min-height:72px;
+  flex:1;
   overflow-y:auto;
-  overflow-x:hidden;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-  padding:4px 4px 12px;
-  scrollbar-width:thin;
-  scrollbar-color:var(--sd) transparent;
+  padding:4px;
+  scrollbar-width:none;
+  min-height:110px;
+  contain:content;
 }
-.list::-webkit-scrollbar{width:5px}
-.list::-webkit-scrollbar-thumb{background:var(--sd);border-radius:9px}
+.list::-webkit-scrollbar{display:none}
 .item{
   display:flex;
   align-items:center;
   gap:8px;
   padding:10px 12px;
-  margin-bottom:9px;
+  margin-bottom:10px;
   border-radius:15px;
   cursor:pointer;
   background:var(--bg);
   box-shadow:4px 4px 8px var(--sd),-4px -4px 8px var(--sl);
+  content-visibility:auto;
+  contain-intrinsic-size:auto 54px;
   transition:transform .14s;
-  min-width:0;
 }
 .item.on{color:var(--ac)}
 .item.press{transform:scale(.98)}
@@ -889,11 +792,11 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
   overflow:hidden;
   text-overflow:ellipsis;
 }
-.meta small{opacity:.75;font-size:10.5px;margin-top:2px}
+.meta small{opacity:.72;font-size:10.5px;margin-top:2px}
 .mini{
-  width:34px;
-  height:34px;
-  padding:8px;
+  width:32px;
+  height:32px;
+  padding:7px;
   border-radius:10px;
   flex:none;
   position:relative;
@@ -910,18 +813,11 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
 }
 .empty{
   text-align:center;
-  opacity:.76;
-  margin-top:16px;
-  padding:10px 12px;
-  line-height:1.5;
+  opacity:.72;
+  margin-top:18px;
+  padding:0 10px;
+  line-height:1.48;
   font-size:12px;
-}
-.empty-actions{
-  display:flex;
-  gap:8px;
-  justify-content:center;
-  flex-wrap:wrap;
-  margin-top:10px;
 }
 .thumb{
   width:40px;
@@ -934,7 +830,7 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
 #toast{
   position:fixed;
   left:50%;
-  bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  bottom:calc(20px + env(safe-area-inset-bottom));
   z-index:95;
   max-width:92vw;
   padding:11px 18px;
@@ -1016,24 +912,6 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
   background:var(--ac-18);
   color:var(--ac);
   margin-right:5px;
-  font-weight:800;
-}
-.badge.exact{background:rgba(46,194,126,0.18);color:#1f8b58}
-.badge.likely{background:var(--ac-18);color:var(--ac)}
-.badge.uncertain{background:rgba(141,148,168,0.22);color:var(--tx)}
-.search-meta-bar{
-  font-size:11px;
-  line-height:1.4;
-  padding:6px 10px;
-  border-radius:10px;
-  margin-bottom:6px;
-  box-shadow:inset 2px 2px 5px var(--sd),inset -2px -2px 5px var(--sl);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  flex-wrap:wrap;
-  flex:none;
 }
 .disabled-zone{
   opacity:.42;
@@ -1051,22 +929,16 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
   font-size:10.5px;
   margin-bottom:10px;
   box-shadow:inset 2px 2px 5px var(--sd),inset -2px -2px 5px var(--sl);
-  max-width:100%;
 }
 .status-dot{
   width:8px;
   height:8px;
   border-radius:50%;
   background:#8d94a8;
-  flex:none;
 }
 .status-dot.on{
   background:#2ec27e;
   box-shadow:0 0 6px #2ec27e;
-}
-.status-dot.warn{
-  background:#e5a50a;
-  box-shadow:0 0 6px #e5a50a;
 }
 .about-copy p+p{margin-top:10px}
 .kv-list{
@@ -1085,168 +957,63 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
   box-shadow:inset 2px 2px 5px var(--sd),inset -2px -2px 5px var(--sl);
 }
 .kv-list b{color:var(--ac)}
-.eq-top-bar{
-  display:flex;
-  gap:8px;
-  margin-bottom:10px;
-  align-items:center;
-  width:100%;
-  min-width:0;
-}
-.eq-top-bar #eqLink{
-  margin-top:0;
-  flex:1 1 0%;
-  min-width:0;
-  font-size:11.5px;
-}
-
-/* 1. Small Mobile Portrait */
-@media (max-width:380px){
-  .player{padding:6px 10px 8px;gap:5px}
+@media (max-width:360px){
+  .player{padding:6px 10px 8px}
   .ib{width:34px;height:34px;padding:7px;border-radius:11px}
-  .ctl button{width:42px;height:42px;padding:11px}
-  .ctl .play{width:56px;height:56px;padding:16px}
-  .lab{width:64px}
+  .lab{width:58px}
   .val{width:38px}
-  .sheet{padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));gap:8px}
-  #hubBtn{padding:0 12px;font-size:12px}
 }
-
-/* Compact vertical spacing inside sheets when keyboard is open or viewport is short */
-@media (max-height:540px){
-  .sheet{
-    top:calc(var(--vvt, 0px) + max(4px, env(safe-area-inset-top, 0px)));
-    height:calc(var(--vvh, 100dvh) - max(4px, env(safe-area-inset-top, 0px)));
-    max-height:calc(var(--vvh, 100dvh) - max(4px, env(safe-area-inset-top, 0px)));
-    padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));
-    gap:6px;
-    border-radius:20px 20px 0 0;
-  }
-  .sh h2{font-size:15px}
-  .tabs button{padding:7px 6px;font-size:10.5px}
-  .field{padding:8px 10px;font-size:12px}
-  #hubBtn{height:34px;padding:0 12px}
-  .scrollx{padding:3px 2px 5px}
-  .chip{padding:5px 10px;font-size:10.5px}
-  .item{padding:8px 10px;margin-bottom:6px}
-}
-
-/* 2. Mobile Landscape */
-@media (max-width:899px) and (orientation:landscape), (max-height:479px) and (orientation:landscape){
+@media (max-height:535px) and (orientation:landscape){
   .player{
-    max-width:820px;
-    grid-template-columns:minmax(130px,36vw) minmax(0,1fr);
-    grid-template-rows:auto minmax(48px,auto) 28px auto;
+    max-width:780px;
+    grid-template-columns:minmax(130px,34vw) 1fr;
+    grid-template-rows:auto auto auto auto;
     column-gap:18px;
     row-gap:6px;
-    padding:6px 16px 8px;
+    padding:8px 18px 10px;
   }
   .bar{grid-column:1 / -1}
   .stage{
     grid-column:1;
     grid-row:2 / 5;
-    min-height:92px;
+    min-height:96px;
   }
   .disc{
-    width:clamp(96px,min(26vw,50dvh),168px);
-    height:clamp(96px,min(26vw,50dvh),168px);
+    width:clamp(104px,min(25vw,52vh),168px);
+    height:clamp(104px,min(25vw,52vh),168px);
   }
-  .info{grid-column:2;grid-row:2;height:54px;min-height:54px;max-height:54px;padding:6px 40px 6px 10px}
-  .time{grid-column:2;grid-row:3;height:26px}
+  .info{grid-column:2;grid-row:2;height:54px;min-height:54px;max-height:54px;padding:6px 10px}
+  .time{grid-column:2;grid-row:3}
   .ctl{grid-column:2;grid-row:4}
-  .ctl button{width:40px;height:40px;padding:10px}
-  .ctl .play{width:52px;height:52px;padding:14px}
+  .ctl button{width:42px;height:42px;padding:11px}
+  .ctl .play{width:54px;height:54px;padding:15px}
 }
-
-/* 3. Tablet Portrait (768px - 899px) */
-@media (min-width:768px) and (max-width:899px) and (min-height:540px){
+@media (min-width:900px) and (min-height:540px){
   .app{
-    padding:20px;
-    align-items:center;
-    justify-items:center;
-  }
-  .player{
-    max-width:540px;
-    max-height:840px;
-    padding:22px 28px;
-    border-radius:30px;
-    background:var(--bg);
-    box-shadow:12px 12px 26px var(--sd),-12px -12px 26px var(--sl);
-  }
-  .disc{
-    width:clamp(180px,min(42vw,32dvh),276px);
-    height:clamp(180px,min(42vw,32dvh),276px);
-  }
-  .sheet{
-    max-width:680px;
+    grid-template-columns:minmax(380px,460px) 1fr;
+    gap:26px;
+    padding:24px;
+    max-width:1320px;
     margin:0 auto;
-    border-radius:28px 28px 0 0;
-  }
-}
-
-/* 4. Compact Desktop, Tablet Landscape & Split-Screen (min-width: 900px and min-height: 480px) */
-@media (min-width:900px) and (min-height:480px){
-  #sheetBackdrop{display:none!important}
-  html.mobile-sheet-open .player{
-    pointer-events:auto;
-    user-select:auto;
-  }
-  .app{
-    grid-template-columns:minmax(370px,440px) minmax(420px,1fr);
-    grid-template-rows:minmax(0,1fr);
-    gap:24px;
-    padding:20px 26px;
-    max-width:1360px;
-    margin:0 auto;
-    align-items:stretch;
   }
   .player{
     max-width:none;
-    width:100%;
-    height:100%;
-    grid-template-rows:auto minmax(140px,1fr) 74px 34px auto;
-    padding:20px 24px 22px;
+    padding:20px 24px;
     border-radius:30px;
     background:var(--bg);
     box-shadow:12px 12px 26px var(--sd),-12px -12px 26px var(--sl);
-    justify-items:center;
-  }
-  .player .bar{max-width:100%}
-  .player .info,
-  .player .time,
-  .player .ctl{
-    max-width:390px;
-    width:100%;
-  }
-  .player .ctl button{
-    width:48px;
-    height:48px;
-    padding:13px;
-  }
-  .player .ctl .play{
-    width:66px;
-    height:66px;
-    padding:19px;
-  }
-  .disc{
-    width:clamp(150px,min(26vw,34dvh),264px);
-    height:clamp(150px,min(26vw,34dvh),264px);
   }
   #lib{
     position:static;
-    top:auto;
-    height:100%;
-    max-height:100%;
     pointer-events:auto;
-    transform:none!important;
-    opacity:1!important;
-    visibility:visible!important;
+    transform:none;
+    opacity:1;
+    visibility:visible;
     border-radius:30px;
-    padding:20px 22px;
     box-shadow:12px 12px 26px var(--sd),-12px -12px 26px var(--sl);
+    height:100%;
     animation:none!important;
     filter:none!important;
-    overflow:hidden;
   }
   #lib .close,#libBtn{display:none}
   .side{
@@ -1254,89 +1021,20 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
     right:0;
     bottom:0;
     left:auto;
-    height:100%;
-    max-height:100%;
     width:min(470px,100%);
     border-radius:30px 0 0 30px;
-    box-shadow:-12px 0 28px rgba(0,0,0,.18);
+    box-shadow:-12px 0 26px rgba(0,0,0,.16);
     transform:translate3d(104%,0,0);
-    overflow-y:auto;
   }
-  .side.open{transform:translate3d(0,0,0)}
+  .sheet.open{transform:translate3d(0,0,0)}
 }
-
-/* 5. Standard Desktop & Wide Monitors (>= 1200px and min-height: 560px) */
-@media (min-width:1200px) and (min-height:560px){
-  .app{
-    grid-template-columns:minmax(420px,480px) minmax(520px,1fr);
-    gap:32px;
-    padding:28px 38px;
-    max-width:1480px;
-  }
-  .player{
-    padding:24px 30px 26px;
-  }
-  .player .info,
-  .player .time,
-  .player .ctl{
-    max-width:410px;
-  }
-  .disc{
-    width:clamp(185px,min(24vw,36dvh),288px);
-    height:clamp(185px,min(24vw,36dvh),288px);
-  }
-  #lib{
-    padding:24px 28px;
-    gap:12px;
-  }
-  .side{
-    width:min(500px,42vw);
-  }
-}
-
-/* 6. Fullscreen Mode Rules */
-html.fs-active .app,
-:fullscreen .app,
-:-webkit-full-screen .app{
-  max-width:1480px;
-  height:var(--vvh, 100dvh);
-}
-html.fs-active .player,
-:fullscreen .player,
-:-webkit-full-screen .player{
-  max-height:100%;
-  grid-template-rows:auto minmax(88px,1fr) auto auto auto;
-  padding-bottom:max(14px, env(safe-area-inset-bottom, 14px));
-}
-html.fs-active .disc,
-:fullscreen .disc,
-:-webkit-full-screen .disc{
-  width:clamp(104px,min(46vw,27dvh),268px);
-  height:clamp(104px,min(46vw,27dvh),268px);
-}
-@media (max-height:560px) and (orientation:landscape){
-  html.fs-active .player,
-  :fullscreen .player,
-  :-webkit-full-screen .player{
-    grid-template-columns:minmax(120px,34vw) minmax(0,1fr);
-    grid-template-rows:auto auto auto auto;
-    align-content:center;
-    padding:8px 18px max(10px, env(safe-area-inset-bottom, 10px));
-  }
-  html.fs-active .disc,
-  :fullscreen .disc,
-  :-webkit-full-screen .disc{
-    width:clamp(92px,min(24vw,46dvh),170px);
-    height:clamp(92px,min(24vw,46dvh),170px);
-  }
-}
-
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001s!important;transition-duration:.001s!important;filter:none!important}
 }
 </style>
 </head>
 <body>
+<!-- Hardware-Accelerated Directional Motion Blur SVG Filters -->
 <svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true">
   <defs>
     <filter id="mbY" x="-5%" y="-12%" width="110%" height="124%">
@@ -1347,18 +1045,17 @@ html.fs-active .disc,
     </filter>
   </defs>
 </svg>
-<div id="sheetBackdrop" aria-hidden="true"></div>
-<div class="app" id="appRoot">
-<main class="player" id="playerMain">
+<div class="app">
+<main class="player">
 <header class="bar">
-<button class="ib" id="impBtn" data-i="plus" aria-label="Add music" title="Add music from device"></button>
-<button class="ib" id="extBtn" data-i="ext" aria-label="Online music search" title="Online Music Search" aria-expanded="false"></button>
+<button class="ib" id="impBtn" data-i="plus" aria-label="Import audio" title="Import local files or folder"></button>
+<button class="ib" id="extBtn" data-i="ext" aria-label="Online Direct Audio Hub" title="Online Direct Audio Hub"></button>
 <span class="sp"></span>
-<button class="ib" id="libBtn" data-i="list" aria-label="Queue and library" title="Queue &amp; Library" aria-expanded="false"></button>
-<button class="ib" id="fxBtn" data-i="tune" aria-label="Sound and equalizer" title="Sound &amp; Equalizer" aria-expanded="false"></button>
-<button class="ib" id="thBtn" data-i="pal" aria-label="Themes" title="Colors &amp; Themes" aria-expanded="false"></button>
-<button class="ib" id="fsBtn" data-i="fs" aria-label="Full screen" title="Full Screen" aria-pressed="false"></button>
-<button class="ib" id="abBtn" data-i="info" aria-label="About and help" title="About &amp; Help" aria-expanded="false"></button>
+<button class="ib" id="libBtn" data-i="list" aria-label="Queue and library" title="Queue &amp; Library"></button>
+<button class="ib" id="fxBtn" data-i="tune" aria-label="Audio engine" title="15-Band EQ, Mastering &amp; 3D Engine"></button>
+<button class="ib" id="thBtn" data-i="pal" aria-label="Theme" title="Themes"></button>
+<button class="ib" id="fsBtn" data-i="fs" aria-label="Toggle fullscreen" title="Toggle Fullscreen"></button>
+<button class="ib" id="abBtn" data-i="info" aria-label="About, privacy and tutorial" title="About, Privacy &amp; Tutorial"></button>
 </header>
 
 <div class="stage" id="stage">
@@ -1372,8 +1069,7 @@ html.fs-active .disc,
 
 <div class="info" id="tbox">
 <div class="title-mask" id="tmask"><div id="title">Audio Immersiver</div></div>
-<small id="sub">Add your songs or search online music</small>
-<button class="info-fav" id="favCurBtn" data-i="heart" type="button" aria-label="Like current song" aria-pressed="false" title="Like / Unlike song"></button>
+<small id="sub">Import local tracks or open the Direct Audio Hub</small>
 </div>
 
 <div class="time">
@@ -1386,38 +1082,38 @@ html.fs-active .disc,
 </div>
 
 <div class="ctl">
-<button id="shuf" data-i="shuffle" aria-label="Shuffle" title="Shuffle" aria-pressed="false"></button>
+<button id="shuf" data-i="shuffle" aria-label="Shuffle" title="Shuffle"></button>
 <button id="prev" data-i="prev" aria-label="Previous" title="Previous"></button>
 <button class="play" id="play" aria-label="Play" title="Play / Pause"></button>
 <button id="next" data-i="next" aria-label="Next" title="Next"></button>
-<button id="rep" data-i="repeat" aria-label="Repeat" title="Repeat mode" aria-pressed="false"></button>
+<button id="rep" data-i="repeat" aria-label="Repeat" title="Repeat mode"></button>
 </div>
 </main>
 
 <section class="sheet" id="lib" aria-label="Queue and Library">
 <div class="sh"><h2>Queue &amp; Library</h2><button class="ib close" data-close="lib" data-i="close" aria-label="Close"></button></div>
-<div class="tabs" role="tablist"><button class="on" role="tab" aria-selected="true" data-t="q">Queue</button><button role="tab" aria-selected="false" data-t="l">Library</button></div>
-<div class="pane on" id="pq" role="tabpanel">
+<div class="tabs"><button class="on" data-t="q">Queue</button><button data-t="l">Library</button></div>
+<div class="pane on" id="pq">
 <div class="tools"><button class="chip" id="qShuf">Shuffle</button><button class="chip" id="qClear">Clear</button><button class="chip" id="qSave">Save as list</button></div>
 <div class="list" id="qList"></div>
 </div>
-<div class="pane" id="pl" role="tabpanel">
-<input class="field" id="q" type="search" maxlength="100" placeholder="Search your songs or artists..." autocomplete="off" aria-label="Search saved songs">
-<div class="scrollx" id="chips" role="group" aria-label="Library filters"></div>
-<div class="tools"><button class="chip" id="playAll">Play all</button><button class="chip" id="addAll">Add all to queue</button><button class="chip" id="delPl" hidden>Delete list</button><button class="chip" id="clrHistBtn" hidden>Clear history</button><button class="chip" id="wipe">Clear library</button></div>
+<div class="pane" id="pl">
+<input class="field" id="q" type="search" maxlength="100" placeholder="Search saved songs or artists..." autocomplete="off" aria-label="Search saved songs">
+<div class="scrollx" id="chips"></div>
+<div class="tools"><button class="chip" id="playAll">Play all</button><button class="chip" id="addAll">Add all to queue</button><button class="chip" id="delPl" hidden>Delete list</button><button class="chip" id="wipe">Clear library</button></div>
 <div class="list" id="lList"></div>
 </div>
 </section>
 
-<section class="sheet side" id="fx" aria-label="Sound Settings">
-<div class="sh"><h2>Sound &amp; Equalizer</h2><button class="ib" data-close="fx" data-i="close" aria-label="Close"></button></div>
+<section class="sheet side" id="fx" aria-label="Audio Parameters">
+<div class="sh"><h2>AUDIO PARAMETERS</h2><button class="ib" data-close="fx" data-i="close" aria-label="Close"></button></div>
 <div class="grp">
-<h3>Sound Boost &amp; Clarity</h3>
+<h3>Playback &amp; High-Res Mastering</h3>
 <div id="fxA"></div>
-<button class="wide sw" id="hz432" role="switch" aria-checked="false">Smooth 432Hz Sound</button>
-<button class="wide sw" id="tubeSw" role="switch" aria-checked="false">Warm Bass &amp; Sound</button>
-<button class="wide sw on" id="limSw" role="switch" aria-checked="true">Safe Volume Protection</button>
-<button class="wide sw on" id="specSw" role="switch" aria-checked="true">Music Ring Visualizer</button>
+<button class="wide sw" id="hz432" role="switch" aria-checked="false">432Hz Natural Warm Tuning</button>
+<button class="wide sw" id="tubeSw" role="switch" aria-checked="false">Warm Analog Tube Saturation</button>
+<button class="wide sw on" id="limSw" role="switch" aria-checked="true">Brickwall Peak Safety Limiter</button>
+<button class="wide sw on" id="specSw" role="switch" aria-checked="true">Circular Spectrum Disc Halo</button>
 </div>
 
 <div class="grp">
@@ -1425,33 +1121,33 @@ html.fs-active .disc,
 <h3>15-Band Equalizer</h3>
 <span class="preset-pill" id="eqPresetLabel">Preset: Flat</span>
 </div>
-<p class="note">Pick a sound style below or move the sliders to tune the music your way.</p>
-<canvas id="eqCurveCanvas" width="360" height="68" aria-label="Equalizer curve"></canvas>
-<div class="eq-top-bar">
-<button class="wide sw" id="eqLink" role="switch" aria-checked="false">Link Nearby Sliders</button>
-<button class="chip" id="eqFlatBtn" type="button" title="Reset all sliders to Flat">Flat / Reset</button>
+<p class="note">Speaker, headphone, car, and TV presets provide general tonal profiles rather than device-specific calibration.</p>
+<canvas id="eqCurveCanvas" width="360" height="68" aria-label="Equalizer frequency response curve"></canvas>
+<div style="display:flex;gap:8px;margin-bottom:10px">
+<button class="wide sw" id="eqLink" role="switch" aria-checked="false" style="margin-top:0;flex:1">Link Nearby Sliders</button>
+<button class="chip" id="eqFlatBtn" type="button" title="Reset all 15 bands to 0 dB (Flat)">Flat / Reset</button>
 </div>
 <div class="scrollx" id="presets" role="group" aria-label="Equalizer presets"></div>
 <div id="eqList"></div>
 </div>
 
 <div class="grp">
-<h3>Room Echo &amp; Stereo Balance</h3>
-<p class="note">Add room echo or make the sound wider across your speakers or headphones.</p>
+<h3>Output Stage, Stereo Width &amp; Reverb</h3>
+<p class="note">Adjust dry/wet balance for room depth, or widen the stereo image with Mid/Side processing.</p>
 <div id="fxB"></div>
 </div>
 
 <div class="grp">
-<h3>3D Surround Sound</h3>
-<div class="pad" id="pad" role="slider" aria-label="3D sound position pad" aria-valuemin="-20" aria-valuemax="20" aria-valuenow="0" tabindex="0"><div class="dot" id="dot"></div></div>
-<div class="pad-readout" id="padCoords">Sound Position: Center</div>
+<h3>3D Sound Motion &amp; Spatial Stage</h3>
+<div class="pad" id="pad" role="slider" aria-label="3D spatial position pad" aria-valuemin="-20" aria-valuemax="20" aria-valuenow="0" tabindex="0"><div class="dot" id="dot"></div></div>
+<div class="pad-readout" id="padCoords">Position: Center (X: 0.0, Y: 0.0, Z: -1.0)</div>
 <button class="wide" id="ctr" style="margin-top:0">Center Position</button>
-<button class="wide sw on" id="hrtfSw" role="switch" aria-checked="true">3D Surround Sound</button>
-<button class="wide sw" id="apan" role="switch" aria-checked="false">Auto Move Sound Around You</button>
-<button class="wide sw" id="vis3" role="switch" aria-checked="false">Bass Beat Pulse</button>
+<button class="wide sw on" id="hrtfSw" role="switch" aria-checked="true">HRTF Binaural 3D Spatial Audio</button>
+<button class="wide sw" id="apan" role="switch" aria-checked="false">Auto 3D Orbit Pan</button>
+<button class="wide sw" id="vis3" role="switch" aria-checked="false">3D Bass Reactive Pulse</button>
 <div id="fxC" style="margin-top:12px"></div>
 </div>
-<button class="wide ac" id="fxReset">Reset Sound Settings</button>
+<button class="wide ac" id="fxReset">Reset Audio settings</button>
 </section>
 
 <section class="sheet side" id="th" aria-label="Themes">
@@ -1460,25 +1156,25 @@ html.fs-active .disc,
 <button class="wide ac" id="thReset">Reset Theme</button>
 </section>
 
-<section class="sheet side" id="ex" aria-label="Online Music">
-<div class="sh"><h2>Online Music</h2><button class="ib" data-close="ex" data-i="close" aria-label="Close"></button></div>
+<section class="sheet side" id="ex" aria-label="Online Direct Audio Hub">
+<div class="sh"><h2>Online Direct Audio Hub</h2><button class="ib" data-close="ex" data-i="close" aria-label="Close"></button></div>
 <div class="grp">
-<h3>Search &amp; Play Songs</h3>
-<div class="status-pill"><span class="status-dot" id="onlineDot"></span><span id="onlineStatusTxt">Online Search Off</span></div>
-<p class="note">Turn on online search to find and play free songs right away.</p>
+<h3>Open-Licensed &amp; Direct Streaming Search</h3>
+<div class="status-pill"><span class="status-dot" id="onlineDot"></span><span id="onlineStatusTxt">Online Search Disabled (Local-Only Mode)</span></div>
+<p class="note">Stream authorized, artist-published or open-licensed audio progressively through the 15-Band EQ &amp; 3D spatial engine without waiting for full downloads.</p>
 <button class="wide sw" id="onlineToggle" role="switch" aria-checked="false" style="margin-top:0;margin-bottom:12px">Enable Online Music Search</button>
 
 <div id="onlineZone" class="disabled-zone" aria-disabled="true">
-<div class="tabs" id="hubSrcTabs" role="tablist" aria-label="Music sources" style="margin-bottom:10px">
-<button id="tabAll" class="on" role="tab" aria-selected="true" data-src="all" disabled>All</button>
-<button id="tabAudius" role="tab" aria-selected="false" data-src="audius" disabled>Audius</button>
-<button id="tabArchive" role="tab" aria-selected="false" data-src="archive" disabled>Archive</button>
-<button id="tabCommons" role="tab" aria-selected="false" data-src="commons" disabled>Commons</button>
+<div class="tabs" id="hubSrcTabs" role="tablist" aria-label="Online direct music providers" style="margin-bottom:10px">
+<button id="tabAll" class="on" role="tab" aria-selected="true" data-src="all" disabled>All Open</button>
+<button id="tabAudius" role="tab" aria-selected="false" data-src="audius" disabled>Audius HQ</button>
+<button id="tabArchive" role="tab" aria-selected="false" data-src="archive" disabled>CC Archive</button>
+<button id="tabCommons" role="tab" aria-selected="false" data-src="commons" disabled>WikiCommons</button>
 </div>
 
-<div class="search-bar-row">
-<input class="field" id="hubQ" type="search" maxlength="100" placeholder="Turn on online search above..." autocomplete="off" disabled aria-label="Search online songs">
-<button class="ib" id="hubBtn" type="button" disabled>Search</button>
+<div style="display:flex;gap:8px;margin-bottom:8px">
+<input class="field" id="hubQ" type="search" maxlength="100" placeholder="Enable online search above to search direct streams..." autocomplete="off" disabled aria-label="Search online tracks">
+<button class="ib" id="hubBtn" style="width:auto;padding:0 16px;color:var(--ac);font-weight:800" disabled>Search</button>
 </div>
 
 <div class="scrollx" id="quickTags">
@@ -1490,56 +1186,44 @@ html.fs-active .disc,
 <button class="chip" data-q="Jazz Instrumental" disabled>Jazz</button>
 </div>
 
-<div class="search-meta-bar" id="hubMetaBar" hidden></div>
-
-<div class="list" id="hubList" style="max-height:330px;margin-top:4px" aria-live="polite">
-<div class="empty">Online search is off. Turn on "Enable Online Music Search" above to find and play songs.</div>
+<div class="list" id="hubList" style="max-height:310px;margin-top:4px" aria-live="polite">
+<div class="empty">Online search is currently disabled. Toggle "Enable Online Music Search" above to stream tracks progressively through the 3D &amp; 15-Band EQ engine.</div>
 </div>
 </div>
 </div>
 
 <div class="grp">
-<h3>Play Sound from Another Tab (PC)</h3>
-<p class="note">Play audio from another browser tab or computer app through this player's sound effects.</p>
+<h3>Live System / Tab Capture (Desktop)</h3>
+<p class="note">Capture real-time audio from another browser tab or desktop application and process it live through the 15-Band EQ &amp; 3D engine.</p>
 <button class="wide" id="capSys">Capture System Sound Output</button>
 <button class="wide" id="capTab">Capture Browser Tab Audio</button>
 <button class="wide ac" id="capStop" hidden>Stop Live Capture</button>
 </div>
 
 <div class="grp">
-<h3>Play from Music Link</h3>
-<p class="note">Paste a direct music link (.mp3, .m4a, .aac, .ogg, .flac, .wav) to play it.</p>
-<input class="field" id="url" type="url" maxlength="2000" placeholder="https://example.com/song.mp3" autocomplete="off">
+<h3>Direct HTTPS Audio Stream Link</h3>
+<p class="note">Paste a direct CORS-enabled HTTPS audio stream URL (.mp3, .m4a, .aac, .ogg, .flac, .wav) for progressive playback.</p>
+<input class="field" id="url" type="url" maxlength="2000" placeholder="https://example.com/stream.mp3" autocomplete="off">
 <button class="wide" id="urlGo">Load &amp; Process Audio Stream</button>
 </div>
 </section>
 
-<section class="sheet side" id="ab" aria-label="About and Help">
-<div class="sh"><h2>About &amp; Help</h2><button class="ib" data-close="ab" data-i="close" aria-label="Close"></button></div>
+<section class="sheet side" id="ab" aria-label="About and Privacy">
+<div class="sh"><h2>About &amp; Privacy</h2><button class="ib" data-close="ab" data-i="close" aria-label="Close"></button></div>
 
 <div class="grp about-copy">
 <h3>About Audio Immersiver</h3>
-<p class="note">Audio Immersiver is an easy-to-use music player with a spinning vinyl disc, 15-band equalizer, 3D surround sound, room echo, and custom color themes.</p>
-<p class="note">Add songs from your device or search free online music to listen your way.</p>
+<p class="note">Audio Immersiver is a personal music player designed to make listening calming, customizable, and engaging. Import your own music or stream from open-licensed libraries with a 15-band equalizer, spatial 3D sound, room reverb, and reactive visuals.</p>
+<p class="note">Playback smoothness depends on your device hardware, browser audio support, network connection, and stream availability.</p>
 <button class="wide ac" id="tutorialBtn" type="button">Open Interactive Tutorial (9 Steps)</button>
 </div>
 
 <div class="grp">
-<h3>Saved Music &amp; History</h3>
-<p class="note" id="storageStatsTxt">Checking your saved songs and history...</p>
-<div style="display:flex;gap:8px;flex-wrap:wrap">
-<button class="chip" id="refreshStorageBtn" type="button">Refresh Info</button>
-<button class="chip" id="pruneBlobsBtn" type="button">Clean Extra Cache</button>
-<button class="chip" id="clearHistoryAbBtn" type="button">Clear History</button>
-</div>
-</div>
-
-<div class="grp">
-<h3>Privacy</h3>
+<h3>Privacy Policy</h3>
 <ul class="kv-list">
-<li><b>Your Music Stays on Your Device:</b> Songs you add from your phone or computer, along with your playlists and sound settings, are saved in your browser and never uploaded anywhere.</li>
-<li><b>Online Music Search:</b> Online search is off until you turn it on. When you search or play online songs, your browser connects directly to Audius, Internet Archive, or Wikimedia Commons.</li>
-<li><b>No Accounts or Tracking:</b> No sign-up is needed, and there are no ads or tracking scripts.</li>
+<li><b>Local Music Stays on Your Device:</b> Audio files you import from your device, along with your playlists, equalizer settings, and themes, are stored locally in your browser (IndexedDB and LocalStorage) and are not uploaded to any server.</li>
+<li><b>Online Features &amp; Third-Party Requests:</b> Online search is off by default. When you enable Online Search or play an external stream, your browser connects directly to the selected provider (Audius, Internet Archive, or Wikimedia Commons). Those services receive standard network request details—such as your IP address and search query—under their own privacy policies.</li>
+<li><b>No Accounts or App Tracking:</b> Audio Immersiver does not require registration and does not include advertising or analytics scripts.</li>
 </ul>
 <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
 <button class="chip" id="reviewWarnBtn" type="button">View Online</button>
@@ -1547,11 +1231,11 @@ html.fs-active .disc,
 </div>
 
 <div class="grp">
-<h3>Music Rights &amp; Licenses</h3>
+<h3>Copyright &amp; Licensing Notice</h3>
 <ul class="kv-list">
-<li><b>Respect Artists:</b> Online songs come from independent artists and open archives (Creative Commons and Public Domain). Please respect the artist's license terms.</li>
-<li><b>Allowed Downloads Only:</b> Only download songs when the artist or license allows it.</li>
-<li><b>Independent Player:</b> Audio Immersiver is an independent project and is not affiliated with Audius, Internet Archive, or Wikimedia.</li>
+<li><b>Respect Creator Rights &amp; Licenses:</b> Online tracks come from independent artists and open-licensed archives (Creative Commons and Public Domain). Always check and follow the track's license terms, such as attribution or non-commercial rules.</li>
+<li><b>Legitimate Downloads Only:</b> Not all online music is free or permitted to download. Only download tracks when the provider offers a legitimate download and the applicable license or artist permission allows it. Audio Immersiver never bypasses DRM, paywalls, or access controls.</li>
+<li><b>Independent Project:</b> Audio Immersiver is not affiliated with or endorsed by Audius, the Internet Archive, or the Wikimedia Foundation.</li>
 </ul>
 </div>
 </section>
@@ -1571,16 +1255,16 @@ html.fs-active .disc,
 
 <div id="warnDlg" role="dialog" aria-modal="true" aria-labelledby="warnTitle">
 <div class="dbox">
-<h3 id="warnTitle">Online Music Notice</h3>
-<p>Before turning on online music search, please note:</p>
+<h3 id="warnTitle">Online Music Search &amp; Copyright Notice</h3>
+<p>Before using online music search and streaming, please review and acknowledge these terms:</p>
 <ul>
-<li><b>Direct Connection:</b> Searching or playing online music connects your browser directly to Audius, Internet Archive, or Wikimedia Commons.</li>
-<li><b>Respect Artist Licenses:</b> Only download or share songs when the artist or license allows it.</li>
-<li><b>Safe &amp; Open:</b> This player only uses public, open-licensed music sources.</li>
+<li><b>Third-Party Network Requests:</b> Connecting to Audius, Internet Archive, or Wikimedia Commons sends standard network requests (including your IP address) directly from your browser to those providers under their own privacy policies.</li>
+<li><b>License &amp; Download Compliance:</b> Only download or reuse tracks when the provider offers a legitimate download and the track's license or creator permission allows it. Do not assume all online streams are free to download or redistribute.</li>
+<li><b>No Circumvention:</b> This player streams only publicly available, authorized endpoints and never bypasses DRM, paywalls, or access restrictions.</li>
 </ul>
 <label class="chk-row" for="warnCheck">
 <input type="checkbox" id="warnCheck">
-<span>I understand and agree to follow artist licenses and terms when using online music.</span>
+<span>I understand how online requests work and agree to follow applicable copyright laws, open licenses, and provider terms.</span>
 </label>
 <div class="dbtns">
 <button class="wide" id="warnCancel" type="button">Cancel</button>
@@ -1592,7 +1276,7 @@ html.fs-active .disc,
 <div id="tutDlg" role="dialog" aria-modal="true" aria-labelledby="tutTitle">
 <div class="dbox">
 <div class="subhead-row">
-<h3 id="tutTitle" style="margin-bottom:0">Easy Guide</h3>
+<h3 id="tutTitle" style="margin-bottom:0">Interactive Guide</h3>
 <span class="preset-pill" id="tutStepBadge">Step 1 of 9</span>
 </div>
 <div class="tut-dots" id="tutDots"></div>
@@ -1612,7 +1296,7 @@ html.fs-active .disc,
 <input type="file" id="fileIn" multiple accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg,.oga,.opus,.weba,.aif,.aiff" hidden>
 <input type="file" id="imgIn" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
 <input type="file" id="dirIn" webkitdirectory="" multiple hidden>
-<audio id="a" crossorigin="anonymous" preload="metadata" playsinline></audio>
+<audio id="a" crossorigin="anonymous" preload="auto" playsinline></audio>
 
 <script>
 const nz=(v,d)=>v==null?d:v;
@@ -1621,41 +1305,21 @@ const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=nu
 const clamp=(v,a,b)=>{v=parseFloat(v);return Number.isFinite(v)?Math.min(b,Math.max(a,v)):a};
 const clean=s=>String(s==null?'':s).replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,120);
 const safeFilename=s=>String(s==null?'':s).replace(/[\u0000-\u001f\u007f<>:"/\\|?*]+/g,' ').replace(/\s+/g,' ').trim().slice(0,90)||'Track';
-const wideMQ=window.matchMedia('(min-width:900px) and (min-height:480px)');
+const wideMQ=window.matchMedia('(min-width:900px) and (min-height:540px)');
 const reduceMotionMQ=window.matchMedia('(prefers-reduced-motion:reduce)');
 const isLowPowerDevice=(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)||(navigator.deviceMemory&&navigator.deviceMemory<=4);
 
-function resetRootScroll(){
-  if(window.scrollX||window.scrollY)window.scrollTo(0,0);
-  if(document.documentElement.scrollTop)document.documentElement.scrollTop=0;
-  if(document.body&&document.body.scrollTop)document.body.scrollTop=0;
-  const appEl=$('#appRoot');
-  if(appEl&&appEl.scrollTop)appEl.scrollTop=0;
-}
-
-let lastVw=0,lastVh=0;
+let lastVw=window.innerWidth,lastVh=window.innerHeight;
 function syncViewportHeight(force){
-  resetRootScroll();
-  const vv=window.visualViewport;
-  const w=Math.round(vv?vv.width:window.innerWidth);
-  const h=Math.round(vv?vv.height:window.innerHeight);
-  const offsetTop=Math.max(0,Math.round(vv?vv.offsetTop:0));
-  if(force||Math.abs(w-lastVw)>4||Math.abs(h-lastVh)>4){
+  const w=window.innerWidth,h=window.innerHeight;
+  if(force||Math.abs(w-lastVw)>16||Math.abs(h-lastVh)>40){
     lastVw=w;lastVh=h;
-    const rootStyle=document.documentElement.style;
-    rootStyle.setProperty('--vh',(h*0.01).toFixed(4)+'px');
-    rootStyle.setProperty('--vvh',h+'px');
-    rootStyle.setProperty('--vvt',offsetTop+'px');
+    document.documentElement.style.setProperty('--vh',(h*0.01).toFixed(4)+'px');
   }
 }
 syncViewportHeight(true);
-window.addEventListener('resize',()=>syncViewportHeight(true),{passive:true});
-window.addEventListener('scroll',resetRootScroll,{passive:true});
-if(window.visualViewport){
-  window.visualViewport.addEventListener('resize',()=>syncViewportHeight(true),{passive:true});
-  window.visualViewport.addEventListener('scroll',()=>syncViewportHeight(true),{passive:true});
-}
-window.addEventListener('orientationchange',()=>setTimeout(()=>{syncViewportHeight(true);resizeVisCanvas();if(fxSheetEl&&fxSheetEl.classList.contains('open'))drawEqCurve()},120),{passive:true});
+window.addEventListener('resize',()=>syncViewportHeight(false),{passive:true});
+window.addEventListener('orientationchange',()=>setTimeout(()=>{syncViewportHeight(true);resizeVisCanvas();if(fxSheetEl.classList.contains('open'))drawEqCurve()},120),{passive:true});
 
 const P={
   plus:'M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z',
@@ -1686,12 +1350,13 @@ const icon=n=>`<svg viewBox="0 0 24 24"><path d="${P[n]||P.info}"/></svg>`;
 const setIcon=(b,n)=>{if(b)b.innerHTML=icon(n)};
 $$('[data-i]').forEach(b=>setIcon(b,b.dataset.i));
 
+/* IMPORTANT: Do NOT pass desynchronized:true on visCanvas — in Windows Edge/Chromium DirectComposition,
+   desynchronized 2D canvases disable alpha blending with the background DOM and render cleared pixels as a solid black box! */
 const dwEl=$('#dw'),discEl=$('#disc'),visCanvas=$('#visCanvas'),visCtx=visCanvas.getContext('2d',{alpha:true});
 const eqCurveCanvas=$('#eqCurveCanvas'),eqCurveCtx=eqCurveCanvas.getContext('2d');
-const titleEl=$('#title'),tmaskEl=$('#tmask'),tboxEl=$('#tbox'),subEl=$('#sub'),favCurBtn=$('#favCurBtn');
+const titleEl=$('#title'),tmaskEl=$('#tmask'),tboxEl=$('#tbox'),subEl=$('#sub');
 const curEl=$('#cur'),totEl=$('#tot'),seekEl=$('#seek'),bufBarEl=$('#bufBar'),playBtnEl=$('#play');
 const pad=$('#pad'),dot=$('#dot'),padCoordsEl=$('#padCoords'),fxSheetEl=$('#fx'),libSheetEl=$('#lib');
-const sheetBackdrop=$('#sheetBackdrop'),playerMain=$('#playerMain');
 const allSheets=$$('.sheet');
 
 const ART='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><radialGradient id="g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#2b2d42"/><stop offset="65%" stop-color="#141520"/><stop offset="100%" stop-color="#090a10"/></radialGradient></defs><circle cx="256" cy="256" r="252" fill="url(#g)"/><circle cx="256" cy="256" r="218" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="2"/><circle cx="256" cy="256" r="184" fill="none" stroke="#ffffff" stroke-opacity=".06" stroke-width="2"/><circle cx="256" cy="256" r="150" fill="none" stroke="#ffffff" stroke-opacity=".08" stroke-width="2"/><circle cx="256" cy="256" r="116" fill="none" stroke="#ffffff" stroke-opacity=".06" stroke-width="2"/></svg>');
@@ -1715,81 +1380,58 @@ window.addEventListener('unhandledrejection',e=>{
   }catch(_){}
 });
 
-/* Fullscreen support with fallback mode */
+/* Fullscreen support */
 const fsBtn=$('#fsBtn');
-let fallbackFsActive=false;
-function isNativeFullscreenActive(){
-  return Boolean(document.fullscreenElement||document.webkitFullscreenElement);
-}
 function isFullscreenActive(){
-  return isNativeFullscreenActive()||fallbackFsActive;
+  return Boolean(document.fullscreenElement||document.webkitFullscreenElement);
 }
 function syncFullscreenUI(){
   const on=isFullscreenActive();
-  document.documentElement.classList.toggle('fs-active',on);
   setIcon(fsBtn,on?'fsExit':'fs');
   fsBtn.classList.toggle('on',on);
   fsBtn.setAttribute('aria-pressed',String(on));
-  fsBtn.title=on?'Exit Full Screen':'Full Screen';
-  syncViewportHeight(true);
-  setTimeout(()=>{syncViewportHeight(true);resizeVisCanvas()},90);
+  fsBtn.title=on?'Exit Fullscreen':'Toggle Fullscreen';
+  setTimeout(()=>{syncViewportHeight(true);resizeVisCanvas()},80);
 }
 fsBtn.onclick=async()=>{
   try{
-    if(isNativeFullscreenActive()){
-      fallbackFsActive=false;
+    if(isFullscreenActive()){
       if(document.exitFullscreen)await document.exitFullscreen();
       else if(document.webkitExitFullscreen)document.webkitExitFullscreen();
-      syncFullscreenUI();
-      return;
-    }
-    if(fallbackFsActive){
-      fallbackFsActive=false;
-      syncFullscreenUI();
-      return;
-    }
-    const root=document.documentElement;
-    if(root.requestFullscreen){
-      await root.requestFullscreen();
-      syncFullscreenUI();
-    }else if(root.webkitRequestFullscreen){
-      root.webkitRequestFullscreen();
-      syncFullscreenUI();
     }else{
-      fallbackFsActive=true;
-      syncFullscreenUI();
-      toast('Full screen view enabled');
+      const root=document.documentElement;
+      if(root.requestFullscreen)await root.requestFullscreen();
+      else if(root.webkitRequestFullscreen)root.webkitRequestFullscreen();
+      else toast('Fullscreen is not supported by this browser view');
     }
   }catch(_){
-    fallbackFsActive=!fallbackFsActive;
-    syncFullscreenUI();
-    toast(fallbackFsActive?'Full screen view enabled':'Exited full screen view');
+    toast('Fullscreen is unavailable in this browser frame');
   }
 };
-document.addEventListener('fullscreenchange',()=>{if(!isNativeFullscreenActive())fallbackFsActive=false;syncFullscreenUI()});
-document.addEventListener('webkitfullscreenchange',()=>{if(!isNativeFullscreenActive())fallbackFsActive=false;syncFullscreenUI()});
+document.addEventListener('fullscreenchange',syncFullscreenUI);
+document.addEventListener('webkitfullscreenchange',syncFullscreenUI);
 
 const fmt=s=>Number.isFinite(s)&&s>=0?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'LIVE';
 
-/* Easy-Language Audio Parameters */
+/* Audio Engine Parameters */
 const FX=[
   ['vol','Volume',0,2.5,.05,1,v=>Math.round(v*100)+'%'],
   ['tone','Tone',-12,12,1,0,v=>(v>0?'+'+v:v)+'dB'],
   ['speed','Speed',.5,2,.05,1,v=>v.toFixed(2)+'x'],
-  ['sub','Deep Bass',0,12,.5,0,v=>'+'+v.toFixed(1)+'dB'],
-  ['midbass','Punch Bass',-6,12,.5,0,v=>(v>0?'+'+v.toFixed(1):v.toFixed(1))+'dB'],
-  ['air','Clear Highs',0,12,.5,0,v=>'+'+v.toFixed(1)+'dB'],
-  ['dry','Main Sound',0,1.2,.05,1,v=>Math.round(v*100)+'%'],
-  ['wet','Room Echo',0,1.2,.05,.25,v=>Math.round(v*100)+'%'],
-  ['width','Stereo Wide',0,2,.05,1,v=>v===0?'Mono':Math.round(v*100)+'%'],
-  ['pan','Left / Right',-1,1,.05,0,v=>Math.abs(v)<.03?'C':v<0?Math.round(-v*100)+'L':Math.round(v*100)+'R'],
-  ['comp','Auto Level',0,100,1,40,v=>v+'%'],
-  ['radius','3D Distance',0,20,.5,5,v=>v.toFixed(1)+'m'],
-  ['pspeed','Spin Speed',.005,.05,.001,.015,v=>Math.round(v*1000)+''],
+  ['sub','Sub-Bass',0,12,.5,0,v=>'+'+v.toFixed(1)+'dB'],
+  ['midbass','Mid-Bass',-6,12,.5,0,v=>(v>0?'+'+v.toFixed(1):v.toFixed(1))+'dB'],
+  ['air','Hi-Air',0,12,.5,0,v=>'+'+v.toFixed(1)+'dB'],
+  ['dry','Dry',0,1.2,.05,1,v=>Math.round(v*100)+'%'],
+  ['wet','Wet',0,1.2,.05,.25,v=>Math.round(v*100)+'%'],
+  ['width','Width',0,2,.05,1,v=>v===0?'Mono':Math.round(v*100)+'%'],
+  ['pan','Pan L/R',-1,1,.05,0,v=>Math.abs(v)<.03?'C':v<0?Math.round(-v*100)+'L':Math.round(v*100)+'R'],
+  ['comp','Dynamics',0,100,1,40,v=>v+'%'],
+  ['radius','3D Radius',0,20,.5,5,v=>v.toFixed(1)+'m'],
+  ['pspeed','Orbit Spd',.005,.05,.001,.015,v=>Math.round(v*1000)+''],
   ['room','Room Size',.1,3,.1,1,v=>v.toFixed(1)+'s'],
-  ['height','Up / Down',-10,10,.5,0,v=>(v>0?'+'+v.toFixed(1):v.toFixed(1))+'m'],
-  ['depth','Front / Back',1,20,.5,5,v=>v.toFixed(1)+'m'],
-  ['reflect','Echo Soft',0,1,.05,.45,v=>Math.round(v*100)+'%']
+  ['height','Height Y',-10,10,.5,0,v=>(v>0?'+'+v.toFixed(1):v.toFixed(1))+'m'],
+  ['depth','Depth Z',1,20,.5,5,v=>v.toFixed(1)+'m'],
+  ['reflect','Damping',0,1,.05,.45,v=>Math.round(v*100)+'%']
 ];
 const BOX={
   vol:'#fxA',tone:'#fxA',speed:'#fxA',sub:'#fxA',midbass:'#fxA',air:'#fxA',
@@ -1797,6 +1439,7 @@ const BOX={
 };
 const F=[25,40,63,100,160,250,400,630,1000,1600,2500,4000,6300,10000,16000];
 
+/* 25 Real Equalizer Presets across the 15 ISO bands */
 const PRE={
   'Flat':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
   'Rock':[5,4.5,3.5,2,-1,-2.5,-2,-0.5,1.5,3,4.5,5.5,6,5.5,5],
@@ -1831,70 +1474,43 @@ if(typeof cfg!=='object'||Array.isArray(cfg))cfg={};
 cfg.fx=cfg.fx&&typeof cfg.fx==='object'?cfg.fx:{};
 cfg.eq=Array.isArray(cfg.eq)?cfg.eq:[];
 cfg.th=cfg.th&&typeof cfg.th==='object'?cfg.th:{};
-cfg.sw=cfg.sw&&typeof cfg.sw==='object'?cfg.sw:{};
 cfg.preset=typeof cfg.preset==='string'&&PRE[cfg.preset]?cfg.preset:'Flat';
 cfg.presetCustom=Boolean(cfg.presetCustom);
 
-const S={
-  lib:new Map(),
-  queue:[],
-  pos:-1,
-  pl:Object.create(null),
-  filter:{k:'all'},
-  hist:[],
-  recent:[],
-  shuffle:Boolean(cfg.sw.shuffle),
-  repeat:['off','all','one'].includes(cfg.sw.repeat)?cfg.sw.repeat:'off',
-  up:null,
-  upFor:-1
-};
-const cache=new Map();
-const activeDownloads=new Map();
-let ctx,mode='file',intent=false,switching=false,token=0,errs=0,pt=0,LS=null,LN=null,raf=0,freqBuf,timeBuf;
-let apOn=Boolean(cfg.sw.apOn),manual=Boolean(cfg.sw.manual),visOn=Boolean(cfg.sw.visOn),hrtfOn=cfg.sw.hrtfOn!==false;
-let apLast=0,ang=Number.isFinite(+cfg.sw.ang)?+cfg.sw.ang:0,orbitPhase=0,drag=false,irT=0,activeBlobUrl=null;
-let hz432On=Boolean(cfg.sw.hz432On),tubeOn=Boolean(cfg.sw.tubeOn),limOn=cfg.sw.limOn!==false,specOn=cfg.sw.specOn!==false,eqLinkOn=Boolean(cfg.sw.eqLinkOn);
-let accentColorHex='hsl(350, 90%, 66%)',accentFillRgba='hsla(350, 90%, 66%, 0.18)',lastAppliedRate=1;
-let pendingRestoreSeek=0,playCountedForCurrentRun=false,trackLoadController=null;
-const N={};
-
-const saveNow=()=>{
-  try{
-    cfg.sw={
-      hz432On,tubeOn,limOn,specOn,hrtfOn,eqLinkOn,apOn,visOn,manual,ang,
-      shuffle:S.shuffle,repeat:S.repeat
-    };
-    localStorage.setItem('rp3',JSON.stringify({
-      fx:cfg.fx,
-      eq:cfg.eq,
-      th:cfg.th,
-      sw:cfg.sw,
-      preset:cfg.preset,
-      presetCustom:cfg.presetCustom
-    }));
-  }catch(_){}
-};
 const save=()=>{
   clearTimeout(save.t);
-  save.t=setTimeout(saveNow,260);
+  save.t=setTimeout(()=>{
+    try{
+      localStorage.setItem('rp3',JSON.stringify({
+        fx:cfg.fx,
+        eq:cfg.eq,
+        th:cfg.th,
+        preset:cfg.preset,
+        presetCustom:cfg.presetCustom
+      }));
+    }catch(_){}
+  },320);
 };
 
+const S={lib:new Map(),queue:[],pos:-1,pl:Object.create(null),filter:{k:'all'},hist:[],shuffle:false,repeat:'off',up:null,upFor:-1};
+const cache=new Map();
+const activeDownloads=new Map();
+let ctx,mode='file',intent=false,switching=false,token=0,errs=0,pt=0,LS=null,LN=null,raf=0,freqBuf,timeBuf,apOn=false,manual=false,visOn=false,hrtfOn=true,apLast=0,ang=0,orbitPhase=0,drag=false,irT=0,activeBlobUrl=null;
+let hz432On=false,tubeOn=false,limOn=true,specOn=true,eqLinkOn=false,accentColorHex='hsl(350, 90%, 66%)',accentFillRgba='hsla(350, 90%, 66%, 0.18)',lastAppliedRate=1;
+const N={};
+
 const db=new Promise((ok,no)=>{
-  const tm=setTimeout(()=>ok(null),1500);
-  const done=v=>{clearTimeout(tm);ok(v)};
   try{
     const r=indexedDB.open('RhythmPro',2);
     r.onupgradeneeded=()=>{
       const d=r.result;
       [['tracks',{keyPath:'id'}],['blobs'],['kv']].forEach(([n,o])=>d.objectStoreNames.contains(n)||d.createObjectStore(n,o));
     };
-    r.onsuccess=()=>done(r.result);
-    r.onerror=()=>done(null);
-    r.onblocked=()=>done(null);
-  }catch(_){done(null)}
+    r.onsuccess=()=>ok(r.result);
+    r.onerror=()=>no(r.error);
+  }catch(e){no(e)}
 }).catch(()=>null);
 
-const memKV=new Map();
 const idb=async(s,m,f)=>{
   const d=await db;if(!d)return undefined;
   return new Promise((ok,no)=>{
@@ -1905,111 +1521,16 @@ const idb=async(s,m,f)=>{
     }catch(e){no(e)}
   });
 };
-const kvSet=(k,v)=>{memKV.set(k,v);return idb('kv','readwrite',s=>s.put(v,k)).catch(()=>{})};
-const kvGet=async k=>{const r=await idb('kv','readonly',s=>s.get(k)).catch(()=>undefined);return r!==undefined?r:memKV.get(k)};
-
-function getTrackFingerprint(name,artist){
-  const norm=s=>String(s||'').toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/\((?:official|lyric|audio|video|remaster|live|hd|hq)[^)]*\)/g,' ')
-    .replace(/\[(?:official|lyric|audio|video|remaster|live|hd|hq)[^\]]*\]/g,' ')
-    .replace(/[^a-z0-9]+/g,' ').trim();
-  const nTitle=norm(name);
-  const nArt=norm(artist==null||artist==='Local Audio'||artist==='Unknown Artist'?'':artist);
-  return `${nTitle}::${nArt}`;
-}
-
-function serializeSessionState(overridePlaying){
-  const curId=S.pos>=0&&S.pos<S.queue.length?S.queue[S.pos]:null;
-  const curTrack=curId?S.lib.get(curId):null;
-  const curPos=Number.isFinite(A.currentTime)&&A.currentTime>0?Math.round(A.currentTime*100)/100:(curTrack?.lastPos||0);
-  const dur=Number.isFinite(A.duration)&&A.duration>0?Math.round(A.duration*100)/100:(curTrack?.dur||0);
-  return {
-    ids:S.queue.slice(0,500),
-    pos:S.pos,
-    currentId:curId,
-    position:curPos,
-    duration:dur,
-    wasPlaying:overridePlaying!=null?Boolean(overridePlaying):Boolean(intent&&!A.paused),
-    shuffle:S.shuffle,
-    repeat:S.repeat,
-    filter:S.filter,
-    updatedAt:Date.now()
-  };
-}
-
-function saveSessionStateNow(overridePlaying){
-  const snap=serializeSessionState(overridePlaying);
-  const curId=snap.currentId;
-  if(curId&&S.lib.has(curId)){
-    const m=S.lib.get(curId);
-    if(snap.position>=0)m.lastPos=snap.position;
-    if(snap.duration>0&&!m.dur)m.dur=snap.duration;
-    idb('tracks','readwrite',s=>s.put(m)).catch(()=>{});
-  }
-  try{localStorage.setItem('rp3_session',JSON.stringify(snap))}catch(_){}
-  kvSet('q',snap);
-}
-
+const kvSet=(k,v)=>idb('kv','readwrite',s=>s.put(v,k)).catch(()=>{});
+const kvGet=k=>idb('kv','readonly',s=>s.get(k)).catch(()=>undefined);
 const saveQ=()=>{
   clearTimeout(saveQ.t);
   saveQ.t=setTimeout(()=>{
-    S.queue.forEach(id=>{
-      const m=S.lib.get(id);
-      if(m)idb('tracks','readwrite',s=>s.put(m)).catch(()=>{});
-    });
-    saveSessionStateNow();
-  },220);
+    const savedIds=S.queue.filter(id=>{const m=S.lib.get(id);return m&&!m.ephemeral});
+    kvSet('q',{ids:savedIds,pos:Math.min(S.pos,savedIds.length-1)});
+  },250);
 };
-
-const savePl=()=>{
-  try{localStorage.setItem('rp3_pl',JSON.stringify(S.pl))}catch(_){}
-  return kvSet('pl',S.pl);
-};
-
-const saveRecent=()=>{
-  const trimmed=S.recent.slice(0,100);
-  S.recent=trimmed;
-  try{localStorage.setItem('rp3_recent',JSON.stringify(trimmed))}catch(_){}
-  return kvSet('recent',trimmed);
-};
-
-function recordTrackPlayStart(m){
-  if(!m)return;
-  const now=Date.now();
-  m.lastPlayedAt=now;
-  S.recent=S.recent.filter(r=>r&&r.id!==m.id);
-  S.recent.unshift({
-    id:m.id,
-    playedAt:now,
-    completed:Boolean(m.completedCount>0)
-  });
-  idb('tracks','readwrite',s=>s.put(m)).catch(()=>{});
-  saveRecent();
-  if(S.filter.k==='recent')renderLib();
-}
-
-function recordTrackPlayThresholdPassed(m){
-  if(!m||playCountedForCurrentRun)return;
-  playCountedForCurrentRun=true;
-  m.playCount=(+m.playCount||0)+1;
-  m.lastPlayedAt=Date.now();
-  idb('tracks','readwrite',s=>s.put(m)).catch(()=>{});
-  if(S.filter.k==='recent'||S.filter.k==='most')renderLib();
-}
-
-function recordTrackCompleted(m){
-  if(!m)return;
-  if(!playCountedForCurrentRun)recordTrackPlayThresholdPassed(m);
-  m.completedCount=(+m.completedCount||0)+1;
-  m.lastCompletedAt=Date.now();
-  m.lastPos=0;
-  const rec=S.recent.find(r=>r&&r.id===m.id);
-  if(rec)rec.completed=true;
-  idb('tracks','readwrite',s=>s.put(m)).catch(()=>{});
-  saveRecent();
-  saveSessionStateNow(false);
-}
+const savePl=()=>kvSet('pl',S.pl);
 
 const row=(lab,at,fmtFn)=>{
   const r=el('div','row'),s=el('input'),vEl=el('span','val');
@@ -2031,6 +1552,7 @@ const T=(p,v,tc=.05)=>{
   }
 };
 
+/* Anti-Crackling Smart Headroom Compensation across EQ, Bass, Tone, Reverb, and Volume */
 function updateEqHeadroom(){
   if(!ctx||!N.pre)return;
   let maxBoost=0,energySum=0;
@@ -2045,8 +1567,7 @@ function updateEqHeadroom(){
   const airBoost=+fxIn.air?.value||0;
   const wetAmt=+fxIn.wet?.value||0;
   const volAmt=+fxIn.vol?.value||1;
-  const tubeBoost=tubeOn?1.6:0;
-  const totalPeak=Math.max(maxBoost,energySum*0.55,subBoost*0.8,midBassBoost*0.7,toneBoost,airBoost*0.6)+tubeBoost+(wetAmt>0.4?(wetAmt-0.4)*3:0)+(volAmt>1?(volAmt-1)*4.5:0);
+  const totalPeak=Math.max(maxBoost,energySum*0.55,subBoost*0.8,midBassBoost*0.7,toneBoost,airBoost*0.6)+(wetAmt>0.4?(wetAmt-0.4)*3:0)+(volAmt>1?(volAmt-1)*4.5:0);
   const atten=totalPeak>1.0?Math.pow(10,-((totalPeak-1.0)*0.58)/20):1;
   T(N.pre.gain,clamp(0.46*atten,0.08,0.52),0.065);
 }
@@ -2137,7 +1658,7 @@ function updatePresetUI(){
   }else{
     cfg.presetCustom=true;
   }
-  const labelText=cfg.presetCustom?`Preset: ${cfg.preset} (Custom)`:`Preset: ${cfg.preset}`;
+  const labelText=cfg.presetCustom?`Preset: ${cfg.preset} (Customized)`:`Preset: ${cfg.preset}`;
   $('#eqPresetLabel').textContent=labelText;
   presetButtons.forEach((btn,name)=>{
     const active=(!cfg.presetCustom&&exact===name)||(cfg.presetCustom&&cfg.preset===name);
@@ -2165,7 +1686,7 @@ function applyPreset(name,announce=true){
   updateEqHeadroom();
   updatePresetUI();
   save();
-  if(announce)toast(`Preset: ${name}`);
+  if(announce)toast(`EQ Preset: ${name}`);
 }
 
 FX.forEach(([k,l,mn,mx,st,d,fmtFn])=>{
@@ -2208,39 +1729,11 @@ F.forEach((f,i)=>{
   };
 });
 
-function syncSwitchUI(){
-  const pairs=[
-    ['#hz432',hz432On],
-    ['#tubeSw',tubeOn],
-    ['#limSw',limOn],
-    ['#specSw',specOn],
-    ['#hrtfSw',hrtfOn],
-    ['#eqLink',eqLinkOn],
-    ['#apan',apOn],
-    ['#vis3',visOn]
-  ];
-  pairs.forEach(([sel,on])=>{
-    const b=$(sel);
-    if(b){
-      b.classList.toggle('on',Boolean(on));
-      b.setAttribute('aria-checked',String(Boolean(on)));
-    }
-  });
-  dot.classList.toggle('auto',apOn);
-  pad.classList.toggle('spin',apOn);
-  $('#shuf').classList.toggle('on',S.shuffle);
-  $('#shuf').setAttribute('aria-pressed',String(S.shuffle));
-  $('#rep').dataset.m=S.repeat;
-  $('#rep').classList.toggle('on',S.repeat!=='off');
-  $('#rep').setAttribute('aria-pressed',String(S.repeat!=='off'));
-}
-
 $('#eqLink').onclick=function(){
   eqLinkOn=!eqLinkOn;
   this.classList.toggle('on',eqLinkOn);
   this.setAttribute('aria-checked',String(eqLinkOn));
-  save();
-  toast(eqLinkOn?'Nearby sliders linked together':'Single slider mode');
+  toast(eqLinkOn?'Linked EQ Wave Curve enabled: nearby sliders move together':'Single-slider EQ mode restored');
 };
 
 $('#eqFlatBtn').onclick=()=>applyPreset('Flat',true);
@@ -2253,6 +1746,7 @@ Object.keys(PRE).forEach(n=>{
   $('#presets').append(b);
 });
 
+/* Compact 1024-sample WaveShaper Lookup Tables + Zero-Latency Anti-Crackle Soft Clipper */
 function buildTubeCurve(amount){
   const n=1024,curve=new Float32Array(n);
   if(amount<=0){
@@ -2299,6 +1793,7 @@ function updatePlaybackSpeedAndPitch(force){
   discEl.style.animationDuration=(8/effectiveRate).toFixed(2)+'s';
 }
 
+/* Smooth Constant-Power 3D Spatial Crossfade (Zero Binary Clicks) */
 function updateSpatialRouting(){
   if(!ctx||!N.stereoBypass||!N.panGain)return;
   const h=+fxIn.height.value;
@@ -2315,7 +1810,7 @@ function updateSpatialRouting(){
     blend=clamp(disp,0,1);
   }
   const bypassGain=Math.cos(blend*Math.PI*0.5);
-  const spatialGain=Math.sin(blend*Math.PI*0.5)*1.06;
+  const spatialGain=Math.sin(blend*Math.PI*0.5)*1.12;
   T(N.stereoBypass.gain,bypassGain,0.065);
   T(N.panGain.gain,spatialGain,0.065);
 }
@@ -2369,8 +1864,7 @@ $('#hz432').onclick=function(){
   this.classList.toggle('on',hz432On);
   this.setAttribute('aria-checked',String(hz432On));
   updatePlaybackSpeedAndPitch(true);
-  save();
-  toast(hz432On?'Smooth 432Hz sound on':'Standard sound restored');
+  toast(hz432On?'432Hz Natural Warm Tuning enabled':'440Hz Standard Tuning restored');
 };
 
 $('#tubeSw').onclick=function(){
@@ -2382,9 +1876,7 @@ $('#tubeSw').onclick=function(){
     N.shaper.curve=tubeOn?warmTubeCurve:linearCurve;
     N.shaper.oversample=tubeOn?'2x':'none';
   }
-  updateEqHeadroom();
-  save();
-  toast(tubeOn?'Warm bass & sound on':'Warm sound off');
+  toast(tubeOn?'Warm Analog Tube Saturation enabled':'Tube Saturation bypassed');
 };
 
 $('#limSw').onclick=function(){
@@ -2396,8 +1888,7 @@ $('#limSw').onclick=function(){
     T(N.lim.threshold,limOn?-1.2:0,.04);
     T(N.lim.ratio,limOn?16:1,.04);
   }
-  save();
-  toast(limOn?'Safe volume protection on':'Safe volume protection off');
+  toast(limOn?'Peak Safety Limiter active':'Peak Safety Limiter bypassed');
 };
 
 $('#specSw').onclick=function(){
@@ -2408,7 +1899,6 @@ $('#specSw').onclick=function(){
     visCtx.clearRect(0,0,visCanvas.width,visCanvas.height);
     visCanvas.classList.remove('active');
   }
-  save();
   scheduleFrameLoop();
 };
 
@@ -2418,8 +1908,7 @@ $('#hrtfSw').onclick=function(){
   this.setAttribute('aria-checked',String(hrtfOn));
   engine();
   updateSpatialRouting();
-  save();
-  toast(hrtfOn?'3D surround sound on':'Standard stereo panning');
+  toast(hrtfOn?'HRTF Binaural 3D Spatial mode active':'Equal-Power 3D Panning active');
 };
 
 let lastIrKey='',irSwapTimer=0;
@@ -2458,6 +1947,7 @@ function ir(immediate=false){
       T(N.wet.gain,targetWet,.04);
       return;
     }
+    /* Silent fade-down before buffer swap to guarantee zero convolver click */
     clearTimeout(irSwapTimer);
     T(N.wet.gain,0.0001,.015);
     irSwapTimer=setTimeout(()=>{
@@ -2468,9 +1958,11 @@ function ir(immediate=false){
   },immediate?0:220);
 }
 
+/* Ultra-Level 3D Sound Motion with Acoustic Pinna & Distance Air-Absorption */
 function pos(){
   const R=+fxIn.radius.value,D=+fxIn.depth.value,baseH=+fxIn.height.value;
   const active=apOn||manual||Math.abs(baseH)>0.05||Math.abs(D-5)>0.05||Math.abs(R-5)>0.05;
+  /* During Auto 3D Orbit, add subtle natural 3D elevation breathing so sound orbits in true 3D space */
   const breathY=apOn?Math.sin(orbitPhase*0.5)*2.2:0;
   const h=clamp(baseH+breathY,-10,10);
   const x=active?Math.cos(ang)*R:0;
@@ -2479,6 +1971,8 @@ function pos(){
     T(N.pan.positionX,x,.05);
     T(N.pan.positionY,h,.05);
     T(N.pan.positionZ,z,.05);
+    /* Acoustic Pinna Shadowing & Distance Air Absorption:
+       When sound is behind the head (z > 0) or far away, gently roll off ultra-highs for realistic 3D depth */
     if(N.spatialLP){
       const dist=Math.hypot(x,h,z);
       const rearFactor=z>0?clamp(z/Math.max(1,D),0,1):0;
@@ -2490,13 +1984,9 @@ function pos(){
   pad.setAttribute('aria-valuenow',x.toFixed(1));
   if(!fxSheetEl.classList.contains('open'))return;
   if(padCoordsEl){
-    if(!active){
-      padCoordsEl.textContent='Sound Position: Center';
-    }else{
-      const lr=Math.abs(x)<0.4?'Center':(x<0?`Left ${Math.abs(x).toFixed(1)}m`:`Right ${x.toFixed(1)}m`);
-      const fb=z<0?`Front ${Math.abs(z).toFixed(1)}m`:`Back ${z.toFixed(1)}m`;
-      padCoordsEl.textContent=`Sound Position: ${lr} · ${fb}`;
-    }
+    padCoordsEl.textContent=active
+      ?`Position: X ${x.toFixed(1)}m · Y ${h.toFixed(1)}m · Z ${z.toFixed(1)}m`
+      :`Position: Center (X: 0.0, Y: 0.0, Z: -1.0)`;
   }
   const m=(pad.clientWidth||168)/2-14,vr=active?R/20*m:0;
   dot.style.setProperty('--px',(Math.cos(ang)*vr).toFixed(1)+'px');
@@ -2516,7 +2006,6 @@ function autoPan(on){
   updateSpatialRouting();
   $('#apan').classList.toggle('on',on);
   $('#apan').setAttribute('aria-checked',String(on));
-  save();
   scheduleFrameLoop();
 }
 $('#apan').onclick=()=>autoPan(!apOn);
@@ -2586,7 +2075,6 @@ $('#vis3').onclick=function(){
   this.setAttribute('aria-checked',String(visOn));
   if(visOn)engine();
   if(!visOn)dot.style.setProperty('--ps','1');
-  save();
   scheduleFrameLoop();
 };
 
@@ -2655,6 +2143,7 @@ function engine(){
   N.lim.attack.value=0.003;
   N.lim.release.value=0.12;
 
+  /* Sample-Accurate Zero-Latency Soft Clipper to prevent any transient crackle */
   N.softClip=c.createWaveShaper();
   N.softClip.curve=softClipCurve;
   N.softClip.oversample='none';
@@ -2708,6 +2197,7 @@ function engine(){
   c.onstatechange=()=>{if(intent&&c.state!=='running')c.resume().catch(()=>{})};
 }
 
+/* Precomputed Trig Lookup Tables & Batched Path Visualizer */
 const VIS_BARS=36;
 const VIS_COS=new Float32Array(VIS_BARS);
 const VIS_SIN=new Float32Array(VIS_BARS);
@@ -2856,6 +2346,7 @@ function scheduleFrameLoop(){
     if(now-lastVis<frameInterval)return;
     lastVis=now;
     if(apOn){
+      /* Clamp dt to max 48ms so returning from a closed panel or background tab NEVER teleports PannerNode! */
       const dt=Math.min(48,Math.max(0,now-apLast));
       const delta=+fxIn.pspeed.value*(dt/16.7);
       ang=(ang+delta)%(Math.PI*2);
@@ -2890,50 +2381,12 @@ function scheduleFrameLoop(){
   raf=requestAnimationFrame(step);
 }
 
-function syncFavButtonUI(){
-  const curId=S.pos>=0&&S.pos<S.queue.length?S.queue[S.pos]:null;
-  const m=curId?S.lib.get(curId):null;
-  const liked=Boolean(m&&m.liked);
-  if(favCurBtn){
-    favCurBtn.classList.toggle('on',liked);
-    favCurBtn.setAttribute('aria-pressed',String(liked));
-    favCurBtn.disabled=!m;
-  }
-}
-
-function toggleTrackFavorite(m,btnEl){
-  if(!m)return;
-  m.liked=!m.liked;
-  if(m.liked&&m.ephemeral)m.ephemeral=false;
-  idb('tracks','readwrite',s=>s.put(m)).catch(()=>{});
-  if(btnEl){
-    btnEl.classList.toggle('on',m.liked);
-    btnEl.setAttribute('aria-pressed',String(m.liked));
-  }
-  syncFavButtonUI();
-  chips();
-  renderLib();
-  renderQ();
-  toast(m.liked?`Added "${m.name}" to Liked songs`:`Removed "${m.name}" from Liked songs`);
-}
-
-if(favCurBtn){
-  favCurBtn.onclick=()=>{
-    const curId=S.pos>=0&&S.pos<S.queue.length?S.queue[S.pos]:null;
-    const m=curId?S.lib.get(curId):null;
-    if(!m)return toast('Play or select a song first');
-    toggleTrackFavorite(m,favCurBtn);
-  };
-}
-
 function ui(){
   setIcon(playBtnEl,intent?'pause':'play');
   playBtnEl.setAttribute('aria-label',intent?'Pause':'Play');
-  if(!intent)playBtnEl.classList.remove('buffering');
   const spinning=intent&&!reduceMotionMQ.matches;
   discEl.classList.toggle('spinning',spinning);
   discEl.style.animationPlayState=spinning?'running':'paused';
-  syncFavButtonUI();
   scheduleFrameLoop();
   if('mediaSession' in navigator)navigator.mediaSession.playbackState=intent?'playing':'paused';
 }
@@ -2982,9 +2435,9 @@ ms('pause',()=>halt());
 ms('stop',()=>halt());
 ms('previoustrack',()=>prev());
 ms('nexttrack',()=>next());
-ms('seekto',e=>{if(Number.isFinite(A.duration)&&A.duration>0){A.currentTime=clamp(e.seekTime,0,A.duration);ps();saveSessionStateNow()}});
-ms('seekbackward',e=>{if(Number.isFinite(A.duration)){A.currentTime=Math.max(0,A.currentTime-(e.seekOffset||10));saveSessionStateNow()}});
-ms('seekforward',e=>{if(Number.isFinite(A.duration)){A.currentTime=Math.min(A.duration,A.currentTime+(e.seekOffset||10));saveSessionStateNow()}});
+ms('seekto',e=>{if(Number.isFinite(A.duration)&&A.duration>0){A.currentTime=clamp(e.seekTime,0,A.duration);ps()}});
+ms('seekbackward',e=>{if(Number.isFinite(A.duration))A.currentTime=Math.max(0,A.currentTime-(e.seekOffset||10))});
+ms('seekforward',e=>{if(Number.isFinite(A.duration))A.currentTime=Math.min(A.duration,A.currentTime+(e.seekOffset||10))});
 
 function setMode(m){
   mode=m;
@@ -2998,34 +2451,21 @@ async function start(expectedToken=token){
   engine();
   if(expectedToken!==token)return;
   intent=true;
-  if(ctx&&ctx.state!=='running'){
-    await Promise.race([ctx.resume().catch(()=>{}),new Promise(r=>setTimeout(r,320))]);
-  }
+  if(ctx&&ctx.state!=='running')await ctx.resume().catch(()=>{});
   if(expectedToken!==token)return;
   T(N.fade.gain,1,.035);
   ui();
   if(mode!=='live'){
-    try{
-      const p=A.play();
-      if(p&&typeof p.catch==='function'){
-        p.catch(e=>{
-          if(expectedToken!==token)return;
-          if(e&&e.name!=='AbortError'){
-            intent=false;
-            switching=false;
-            playBtnEl.classList.remove('buffering');
-            ui();
-            if(e.name==='NotAllowedError'){
-              toast('Tap Play to start music');
-            }else if(e.name==='NotSupportedError'){
-              toast('This audio format is not supported by your browser');
-            }else{
-              toast('Could not play song — check your connection');
-            }
-          }
-        });
+    const p=A.play();
+    if(p)try{await p}catch(e){
+      if(expectedToken!==token)return;
+      if(e&&e.name!=='AbortError'){
+        intent=false;
+        switching=false;
+        ui();
+        toast('Tap Play to start audio playback');
       }
-    }catch(_){}
+    }
   }
 }
 
@@ -3034,9 +2474,7 @@ function halt(){
   pt=0;
   intent=false;
   switching=false;
-  playBtnEl.classList.remove('buffering');
   ui();
-  saveSessionStateNow(false);
   if(mode==='live')return;
   if(ctx&&!document.hidden&&!A.paused){
     T(N.fade.gain,.0001,.018);
@@ -3046,6 +2484,7 @@ function halt(){
   }
 }
 
+/* Low-RAM LRU Blob Cache (max 2 items in memory) */
 const remember=(id,b)=>{
   if(!(b instanceof Blob))return;
   cache.delete(id);
@@ -3105,7 +2544,7 @@ async function getAudiusHosts(){
     return cachedAudiusHosts;
   }
   try{
-    const c=new AbortController(),tm=setTimeout(()=>c.abort(),3200);
+    const c=new AbortController(),tm=setTimeout(()=>c.abort(),3800);
     const r=await fetch('https://api.audius.co',{signal:c.signal,credentials:'omit',referrerPolicy:'no-referrer'});
     clearTimeout(tm);
     const j=await r.json();
@@ -3164,9 +2603,7 @@ function isBrowserSupportedAudioExt(nameOrUrl,mime){
   return !testMime||Boolean(A.canPlayType(testMime));
 }
 
-const archiveMetaCache=new Map();
 async function resolveArchiveTrackInfo(identifier,signal){
-  if(archiveMetaCache.has(identifier))return archiveMetaCache.get(identifier);
   const safeId=encodeURIComponent(identifier);
   const r=await fetch(`https://archive.org/metadata/${safeId}`,{signal,credentials:'omit',referrerPolicy:'no-referrer'});
   if(!r.ok)return null;
@@ -3192,40 +2629,34 @@ async function resolveArchiveTrackInfo(identifier,signal){
   const rawLen=parseFloat(best.length);
   const dur=Number.isFinite(rawLen)&&rawLen>0?rawLen:0;
   const ext=((best.name.match(/\.([^.]+)$/)||[])[1]||'mp3').toLowerCase();
-  const info={url,dur,ext};
-  if(archiveMetaCache.size>50)archiveMetaCache.delete(archiveMetaCache.keys().next().value);
-  archiveMetaCache.set(identifier,info);
-  return info;
+  return {url,dur,ext};
 }
 
-async function offerExpiredStreamRecovery(m){
-  if(!m)return;
-  const query=clean(`${m.name||''} ${m.folder&&m.folder!=='Local Audio'&&m.folder!=='Unknown Artist'?m.folder:''}`);
-  const recover=await ask({
-    title:'Song Link Unavailable',
-    text:`"${m.name}" could not be played right now. Would you like to search for it again in Online Music?`,
-    ok:'Search Song'
+function waitForPlayableReady(audioEl,maxWaitMs,opToken){
+  return new Promise(resolve=>{
+    if(audioEl.readyState>=3)return resolve();
+    let settled=false;
+    const done=()=>{
+      if(settled)return;
+      settled=true;
+      audioEl.removeEventListener('canplay',done);
+      audioEl.removeEventListener('canplaythrough',done);
+      audioEl.removeEventListener('error',done);
+      clearTimeout(tm);
+      resolve();
+    };
+    const tm=setTimeout(done,maxWaitMs);
+    audioEl.addEventListener('canplay',done,{once:true});
+    audioEl.addEventListener('canplaythrough',done,{once:true});
+    audioEl.addEventListener('error',done,{once:true});
+    if(opToken!==token)done();
   });
-  if(recover){
-    openSheet('ex');
-    if(!onlineEnabled){
-      onlineToggleBtn.click();
-    }
-    if(onlineEnabled){
-      $('#hubQ').value=query||m.name;
-      searchHub({immediate:true});
-    }
-  }
 }
 
 async function playIndex(i,o={}){
   const auto=o.auto!==false;
-  const restoreSeek=Number.isFinite(+o.seek)&&+o.seek>0?+o.seek:0;
-  const wasPlayingBeforeReload=Boolean(o.wasPlaying);
   if(!Number.isInteger(i)||i<0||i>=S.queue.length)return;
   const t=++token;
-  if(trackLoadController){trackLoadController.abort();trackLoadController=null}
-  const loadCtrl=trackLoadController=new AbortController();
   clearTimeout(pt);
   pt=0;
   stopLive(true);
@@ -3240,60 +2671,42 @@ async function playIndex(i,o={}){
   }
   switching=true;
   errs=0;
-  playCountedForCurrentRun=false;
-  pendingRestoreSeek=restoreSeek;
   lastBufPct=-1;
   lastDisplayedSec=-1;
-  curEl.textContent=restoreSeek>0?fmt(restoreSeek):'0:00';
+  curEl.textContent='0:00';
   totEl.textContent=m.dur?fmt(m.dur):'0:00';
-  if(m.dur>0&&restoreSeek>0){
-    seekEl.max=m.dur;
-    seekEl.value=Math.min(restoreSeek,m.dur);
-    seekEl.disabled=false;
-  }else{
-    seekEl.value=0;
-    seekEl.disabled=true;
-  }
+  seekEl.value=0;
+  seekEl.disabled=true;
   bufBarEl.style.setProperty('--bw','0%');
 
   if(!A.paused)A.pause();
-  if(auto){
-    engine();
-    if(N.fade)T(N.fade.gain,.0001,.015);
-    playBtnEl.classList.add('buffering');
-  }else{
-    intent=false;
-    playBtnEl.classList.remove('buffering');
-    ui();
-  }
+  if(auto){engine();if(N.fade)T(N.fade.gain,.0001,.015)}
+  else{intent=false;ui()}
 
   if(m.art)setDisc([m.art,...discList()]);else setDisc(discList());
-  syncFavButtonUI();
   mark();
   saveQ();
 
   let b=cache.get(id);
-  if(!b&&!m.remoteUrl&&!m.archiveId){
+  if(!b&&!m.remoteUrl){
     try{b=await idb('blobs','readonly',s=>s.get(id))}catch(_){}
   }
   if(t!==token)return;
 
   if(!b&&!m.remoteUrl&&m.archiveId){
-    setTitle(m.name,formatTrackSubtitle(m,'Loading song...'));
-    const info=await resolveArchiveTrackInfo(m.archiveId,loadCtrl.signal).catch(()=>null);
+    setTitle(m.name,formatTrackSubtitle(m,'Resolving Archive stream...'));
+    const info=await resolveArchiveTrackInfo(m.archiveId).catch(()=>null);
     if(t!==token)return;
     if(info&&info.url){
       m.remoteUrl=info.url;
       if(info.dur)m.dur=info.dur;
       if(info.ext)m.ext=info.ext;
-      idb('tracks','readwrite',s=>s.put(m)).catch(()=>{});
     }
   }
 
   releaseActiveBlobUrl();
 
-  if(b instanceof Blob&&b.size>0){
-    m.localMissing=false;
+  if(b instanceof Blob){
     remember(id,b);
     activeBlobUrl=URL.createObjectURL(b);
     A.crossOrigin='anonymous';
@@ -3303,39 +2716,29 @@ async function playIndex(i,o={}){
   }else if(m.remoteUrl&&isVerifiedHttpsUrl(m.remoteUrl)){
     if(!isBrowserSupportedAudioExt(m.remoteUrl,m.mime)){
       switching=false;
-      playBtnEl.classList.remove('buffering');
       toast(`Format (${m.ext||'audio'}) is not supported by this browser`);
       return;
     }
     A.crossOrigin='anonymous';
-    A.preload=auto?'auto':'metadata';
+    A.preload='auto';
     A.src=m.remoteUrl;
+    A.load();
   }else{
     switching=false;
-    playBtnEl.classList.remove('buffering');
-    const isLocalTrack=!m.remoteUrl&&!m.archiveId;
-    if(isLocalTrack){
-      m.localMissing=true;
-      setTitle(m.name,formatTrackSubtitle(m,'File missing — please add song again'));
-      toast('Saved audio file is missing. Please add the file again.');
-    }else{
-      setTitle(m.name,formatTrackSubtitle(m,'Unavailable — tap to search again'));
-      if(auto)offerExpiredStreamRecovery(m);
-    }
+    setTitle(m.name,formatTrackSubtitle(m,'Stream unavailable'));
+    toast('Track stream is unavailable');
     return;
   }
 
   updatePlaybackSpeedAndPitch(true);
-  let initStatus=b?'Ready':'Ready';
-  if(auto){
-    initStatus=b?'Playing':'Loading...';
-  }else if(restoreSeek>0){
-    initStatus=wasPlayingBeforeReload?`Saved at ${fmt(restoreSeek)} · Tap Play`:`Paused at ${fmt(restoreSeek)}`;
-  }
-  setTitle(m.name,formatTrackSubtitle(m,initStatus));
+  setTitle(m.name,formatTrackSubtitle(m,b?'Local Ready':auto?'Connecting stream...':'Ready'));
   meta(m.name,m.folder,m.art);
 
   if(auto){
+    if(!b){
+      await waitForPlayableReady(A,1400,t);
+      if(t!==token)return;
+    }
     await start(t);
   }else{
     switching=false;
@@ -3373,7 +2776,6 @@ function prev(){
   if(A.currentTime>3||S.queue.length<2){
     A.currentTime=0;
     ps();
-    saveSessionStateNow();
     return;
   }
   let h=S.hist.pop();
@@ -3382,7 +2784,7 @@ function prev(){
   playIndex(target,{auto:true});
 }
 
-let lastBufPct=-1,lastDisplayedSec=-1,lastPosSaveTime=0;
+let lastBufPct=-1,lastDisplayedSec=-1;
 function updateBufferBar(){
   try{
     if(activeBlobUrl){
@@ -3408,45 +2810,34 @@ function updateBufferBar(){
   }catch(_){}
 }
 
-A.onloadstart=()=>{
-  if(intent&&mode!=='live'){
-    playBtnEl.classList.add('buffering');
-  }
-};
 A.onprogress=updateBufferBar;
 A.onplaying=()=>{
   switching=false;
   errs=0;
   intent=true;
-  playBtnEl.classList.remove('buffering');
   if(ctx&&N.fade)T(N.fade.gain,1,.035);
   const id=S.queue[S.pos],m=S.lib.get(id);
   if(m&&mode==='file'){
-    const statusLabel=activeBlobUrl?'Playing':'Playing Online';
+    const statusLabel=activeBlobUrl?'Playing (Local)':'Streaming';
     subEl.textContent=formatTrackSubtitle(m,statusLabel);
-    recordTrackPlayStart(m);
   }
   ui();
   ps();
   updateBufferBar();
-  saveSessionStateNow(true);
 };
 A.onwaiting=()=>{
   if(intent&&mode!=='live'){
-    playBtnEl.classList.add('buffering');
     const m=S.lib.get(S.queue[S.pos]);
-    subEl.textContent=m?formatTrackSubtitle(m,'Loading...'):'Loading...';
+    subEl.textContent=m?formatTrackSubtitle(m,'Buffering stream...'):'Buffering stream...';
   }
 };
 A.onstalled=()=>{
   if(intent&&mode!=='live'){
-    playBtnEl.classList.add('buffering');
     const m=S.lib.get(S.queue[S.pos]);
-    subEl.textContent=m?formatTrackSubtitle(m,'Loading...'):'Loading...';
+    subEl.textContent=m?formatTrackSubtitle(m,'Network stall — buffering...'):'Buffering...';
   }
 };
 A.oncanplay=()=>{
-  if(!intent)playBtnEl.classList.remove('buffering');
   updateBufferBar();
   if(Number.isFinite(A.duration)&&A.duration>0&&mode!=='live'){
     seekEl.disabled=false;
@@ -3455,31 +2846,21 @@ A.oncanplay=()=>{
   }
 };
 window.addEventListener('online',()=>{
-  updateOfflineSearchBanner();
   if(intent&&A.paused&&A.getAttribute('src')&&mode!=='live'){
     A.play().catch(()=>{});
   }
 });
-window.addEventListener('offline',()=>{
-  updateOfflineSearchBanner();
-});
 A.onplay=()=>{if(mode!=='live'){intent=true;ui()}};
 A.onpause=()=>{
-  playBtnEl.classList.remove('buffering');
   if(!switching&&!A.ended&&mode!=='live'&&!pt){
     intent=false;
     const m=S.lib.get(S.queue[S.pos]);
     if(m&&mode==='file')subEl.textContent=formatTrackSubtitle(m,'Paused');
     ui();
-    saveSessionStateNow(false);
   }
 };
 A.onended=()=>{
-  playBtnEl.classList.remove('buffering');
-  const curId=S.queue[S.pos],curM=S.lib.get(curId);
-  if(curM)recordTrackCompleted(curM);
   if(S.repeat==='one'){
-    playCountedForCurrentRun=false;
     A.currentTime=0;
     A.play().catch(()=>{});
     return;
@@ -3489,7 +2870,8 @@ A.onended=()=>{
   if(n<0){
     intent=false;
     ui();
-    if(curM)subEl.textContent=formatTrackSubtitle(curM,'Finished');
+    const m=S.lib.get(S.queue[S.pos]);
+    if(m)subEl.textContent=formatTrackSubtitle(m,'Finished');
     return;
   }
   if(S.pos>=0)S.hist.push(S.pos);
@@ -3498,7 +2880,6 @@ A.onended=()=>{
 };
 A.onerror=async()=>{
   if(!A.getAttribute('src'))return;
-  playBtnEl.classList.remove('buffering');
   const id=S.queue[S.pos],m=S.lib.get(id);
   if(m&&m.id&&m.id.startsWith('audius|')){
     const hosts=await getAudiusHosts();
@@ -3507,7 +2888,7 @@ A.onerror=async()=>{
       m._retryIdx=idx+1;
       const rawId=m.id.split('|')[1];
       const h=hosts[idx%hosts.length];
-      const savedTime=A.currentTime||pendingRestoreSeek||0;
+      const savedTime=A.currentTime||0;
       m.remoteUrl=`${h}/v1/tracks/${encodeURIComponent(rawId)}/stream?app_name=AudioImmersiver`;
       A.src=m.remoteUrl;
       if(savedTime>1){
@@ -3521,19 +2902,18 @@ A.onerror=async()=>{
   if(mode==='stream'){
     intent=false;
     ui();
-    subEl.textContent='Music link could not be played';
-    toast('Music link could not be loaded');
+    subEl.textContent='Stream unavailable or blocked by CORS';
+    toast('Direct stream failed or does not permit cross-origin Web Audio');
     return;
   }
   if(++errs>2||S.queue.length<=1){
     intent=false;
     ui();
-    subEl.textContent=m?formatTrackSubtitle(m,'Song unavailable'):'Song unavailable';
-    toast('This song is currently unavailable');
-    if(m&&(m.remoteUrl||m.archiveId))offerExpiredStreamRecovery(m);
+    subEl.textContent=m?formatTrackSubtitle(m,'Source unavailable or CORS-restricted'):'Source unavailable';
+    toast('Audio stream is unavailable or restricted by the server');
     return;
   }
-  toast('Song unavailable, skipping to next...');
+  toast('Track unavailable, skipping to next...');
   setTimeout(next,350);
 };
 A.onloadedmetadata=()=>{
@@ -3543,30 +2923,11 @@ A.onloadedmetadata=()=>{
     totEl.textContent=fmt(d);
     seekEl.max=d;
     seekEl.disabled=mode==='live';
-    if(m&&!m.dur){
-      m.dur=d;
-      idb('tracks','readwrite',s=>s.put(m)).catch(()=>{});
-    }
-    if(pendingRestoreSeek>0&&pendingRestoreSeek<d-1){
-      try{
-        A.currentTime=pendingRestoreSeek;
-        seekEl.value=pendingRestoreSeek;
-        curEl.textContent=fmt(pendingRestoreSeek);
-      }catch(_){}
-      pendingRestoreSeek=0;
-    }
+    if(m&&!m.dur)m.dur=d;
   }else if(m&&m.dur){
     totEl.textContent=fmt(m.dur);
     seekEl.max=m.dur;
     seekEl.disabled=false;
-    if(pendingRestoreSeek>0&&pendingRestoreSeek<m.dur-1){
-      try{
-        A.currentTime=pendingRestoreSeek;
-        seekEl.value=pendingRestoreSeek;
-        curEl.textContent=fmt(pendingRestoreSeek);
-      }catch(_){}
-      pendingRestoreSeek=0;
-    }
   }else{
     totEl.textContent='LIVE';
     seekEl.disabled=true;
@@ -3574,7 +2935,7 @@ A.onloadedmetadata=()=>{
   ps();
   updateBufferBar();
 };
-A.onseeked=()=>{ps();saveSessionStateNow()};
+A.onseeked=ps;
 A.onratechange=ps;
 A.ontimeupdate=()=>{
   if(drag||mode==='live')return;
@@ -3590,14 +2951,6 @@ A.ontimeupdate=()=>{
       seekEl.disabled=false;
     }
     curEl.textContent=sec>=0?fmt(sec):'LIVE';
-    if(m&&!playCountedForCurrentRun&&sec>=Math.min(15,Math.max(3,Math.floor((d||30)*0.25)))){
-      recordTrackPlayThresholdPassed(m);
-    }
-    const now=Date.now();
-    if(sec>0&&now-lastPosSaveTime>5000){
-      lastPosSaveTime=now;
-      saveSessionStateNow();
-    }
   }
 };
 
@@ -3616,7 +2969,6 @@ const finishSeek=()=>{
     }catch(_){}
   }
   ps();
-  saveSessionStateNow();
 };
 seekEl.oninput=()=>{drag=true;curEl.textContent=fmt(+seekEl.value)};
 seekEl.onchange=finishSeek;
@@ -3629,7 +2981,7 @@ playBtnEl.onclick=()=>{
   if(intent){halt();return}
   if(mode==='live'||A.getAttribute('src')){start(token);return}
   if(S.queue.length)playIndex(Math.max(0,S.pos),{auto:true});
-  else{openSheet('ex');toast('Add songs from your device or search online music')}
+  else{openSheet('ex');toast('Import local files or enable Online Search in the Hub')}
 };
 $('#next').onclick=()=>{engine();next()};
 $('#prev').onclick=()=>{engine();prev()};
@@ -3638,18 +2990,13 @@ $('#shuf').onclick=function(){
   S.up=null;
   this.classList.toggle('on',S.shuffle);
   this.setAttribute('aria-pressed',String(S.shuffle));
-  save();
-  saveSessionStateNow();
-  toast(S.shuffle?'Shuffle on':'Shuffle off');
+  toast(S.shuffle?'Shuffle enabled':'Shuffle off');
 };
 $('#rep').onclick=function(){
   S.repeat=S.repeat==='off'?'all':S.repeat==='all'?'one':'off';
   this.dataset.m=S.repeat;
   this.classList.toggle('on',S.repeat!=='off');
-  this.setAttribute('aria-pressed',String(S.repeat!=='off'));
-  save();
-  saveSessionStateNow();
-  toast(S.repeat==='off'?'Repeat off':S.repeat==='all'?'Repeat all songs':'Repeat one song');
+  toast(S.repeat==='off'?'Repeat off':S.repeat==='all'?'Repeat queue':'Repeat current track');
 };
 
 function stopLive(quiet){
@@ -3661,7 +3008,7 @@ function stopLive(quiet){
   $('#capStop').hidden=true;
   if(mode==='live'){
     setMode('file');
-    if(!quiet){intent=false;ui();setTitle('Audio capture stopped','Ready')}
+    if(!quiet){intent=false;ui();setTitle('Capture stopped','Ready')}
   }
 }
 let gT=0;
@@ -3678,25 +3025,25 @@ function guard(on){
     last=r;
     if(hot>=6){
       stopLive();
-      toast('Echo detected and stopped. Mute the other tab while capturing.');
+      toast('Feedback loop stopped. Mute the source tab when capturing.');
     }
   },250);
 }
 async function live(kind){
   engine();
   if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia){
-    return toast('Tab audio capture is only available on desktop browsers.');
+    return toast('Screen/tab audio capture is only supported on desktop browsers.');
   }
   const off={echoCancellation:false,noiseSuppression:false,autoGainControl:false};
   const raw=kind==='tab'
     ?{video:true,selfBrowserSurface:'exclude',audio:{suppressLocalAudioPlayback:true,...off}}
     :{video:true,selfBrowserSurface:'exclude',systemAudio:'include',monitorTypeSurfaces:'include',audio:{restrictOwnAudio:true,suppressLocalAudioPlayback:true,...off}};
   let st;
-  try{st=await navigator.mediaDevices.getDisplayMedia(raw)}catch(_){return toast('Audio capture cancelled')}
+  try{st=await navigator.mediaDevices.getDisplayMedia(raw)}catch(_){return toast('Capture cancelled or not permitted by browser')}
   const tr=st.getAudioTracks();
   if(!tr.length){
     st.getTracks().forEach(t=>t.stop());
-    return toast('No audio shared. Turn on "Share audio" in the browser window.');
+    return toast('No audio track shared. Enable "Share audio" in the browser prompt.');
   }
   stopLive(true);
   const t=++token;
@@ -3712,7 +3059,7 @@ async function live(kind){
   switching=false;
   $('#capStop').hidden=false;
   const name=kind==='tab'?'Tab Audio':'System Sound';
-  setTitle('Live: '+name,'Playing with Sound Effects');
+  setTitle('Live: '+name,'Real-time 15-Band EQ & 3D Engine');
   meta('Live: '+name,'Audio Immersiver');
   curEl.textContent='LIVE';
   totEl.textContent='LIVE';
@@ -3722,7 +3069,7 @@ async function live(kind){
   N.fade.gain.setValueAtTime(0,now);
   N.fade.gain.linearRampToValueAtTime(1,now+0.8);
   guard(true);
-  toast('Playing live audio');
+  toast('Capturing live audio into 3D & EQ engine');
 }
 $('#capTab').onclick=()=>live('tab');
 $('#capSys').onclick=()=>live('sys');
@@ -3732,35 +3079,28 @@ $('#extBtn').onclick=()=>openSheet('ex');
 $('#urlGo').onclick=async()=>{
   engine();
   const raw=$('#url').value.trim();
-  if(!raw)return toast('Paste a music link first');
+  if(!raw)return toast('Enter a direct HTTPS audio stream URL');
   let u;
-  try{u=new URL(raw)}catch(_){return toast('Enter a valid web link')}
-  if(!isVerifiedHttpsUrl(u.href))return toast('Please use a secure https:// music link');
+  try{u=new URL(raw)}catch(_){return toast('Enter a valid URL')}
+  if(!isVerifiedHttpsUrl(u.href))return toast('Only verified HTTPS audio stream URLs are permitted');
   const extMatch=(u.pathname.match(/\.([a-z0-9]{2,5})$/i)||[])[1]||'mp3';
   const customId='direct|'+u.href.slice(0,180);
   if(!S.lib.has(customId)){
-    const nameStr=clean(decodeURIComponent(u.pathname.split('/').pop()||u.hostname).replace(/\.[^.]+$/,''))||'Music Link';
-    const hostStr=clean(u.hostname);
     S.lib.set(customId,{
       id:customId,
-      name:nameStr,
+      name:clean(decodeURIComponent(u.pathname.split('/').pop()||u.hostname).replace(/\.[^.]+$/,''))||'Direct Stream',
       ext:extMatch.toLowerCase(),
-      providerLabel:'LINK',
+      providerLabel:'HTTPS STREAM',
       size:0,
-      folder:hostStr,
-      fingerprint:getTrackFingerprint(nameStr,hostStr),
+      folder:clean(u.hostname),
       liked:false,
       added:Date.now(),
-      playCount:0,
-      completedCount:0,
-      lastPlayedAt:0,
-      lastPos:0,
       remoteUrl:u.href,
       externalUrl:u.href,
       downloadEligible:true,
       ephemeral:false
     });
-    await idb('tracks','readwrite',s=>s.put(S.lib.get(customId))).catch(()=>{});
+    idb('tracks','readwrite',s=>s.put(S.lib.get(customId))).catch(()=>{});
     chips();
     renderLib();
   }
@@ -3790,35 +3130,20 @@ async function importFiles(list){
   const ids=[],newItems=[];
   for(const f of fs){
     const id=`${f.name}|${f.size}|${f.lastModified}`.slice(0,300);
-    if(S.lib.has(id)){
-      const ex=S.lib.get(id);
-      ex.localMissing=false;
-      remember(id,f);
-      idb('blobs','readwrite',s=>s.put(f,id)).catch(()=>{});
-      ids.push(id);
-      continue;
-    }
+    if(S.lib.has(id)){ids.push(id);continue}
     const parts=(f.webkitRelativePath||'').split('/');
-    const nameStr=clean(f.name.replace(/\.[^.]+$/,''))||'Untitled';
-    const folderStr=parts.length>1?clean(parts[parts.length-2]):'My Music';
     const m={
       id,
-      name:nameStr,
+      name:clean(f.name.replace(/\.[^.]+$/,''))||'Untitled',
       ext:((f.name.match(/\.([^.]+)$/)||[])[1]||'audio').toLowerCase().slice(0,6),
       mime:f.type||'',
       size:f.size,
-      folder:folderStr,
-      fingerprint:getTrackFingerprint(nameStr,folderStr),
-      providerLabel:'DEVICE',
+      folder:parts.length>1?clean(parts[parts.length-2]):'Local Audio',
+      providerLabel:'LOCAL',
       liked:false,
       added:Date.now(),
-      playCount:0,
-      completedCount:0,
-      lastPlayedAt:0,
-      lastPos:0,
       downloadEligible:true,
-      ephemeral:false,
-      localMissing:false
+      ephemeral:false
     };
     S.lib.set(id,m);
     if(ids.length<2)remember(id,f);
@@ -3837,7 +3162,7 @@ async function importFiles(list){
           tx.onerror=tx.onabort=no;
         });
       }
-    }catch(_){toast('Storage is full. Songs loaded for this session.')}
+    }catch(_){toast('Device storage full. Tracks loaded for this session.')}
   }
   const wasEmpty=!S.queue.length;
   if(wasEmpty){
@@ -3847,17 +3172,16 @@ async function importFiles(list){
   }else{
     S.queue.push(...ids);
     saveQ();
-    toast(ids.length+' songs added to queue');
+    toast(ids.length+' tracks added to queue');
   }
   chips();
   renderLib();
   renderQ();
-  updateStorageStatsUI();
-  if(wasEmpty)toast(ids.length+' songs added');
+  if(wasEmpty)toast(ids.length+' tracks imported');
 }
 $('#fileIn').onchange=e=>{importFiles(e.target.files);e.target.value=''};
 $('#dirIn').onchange=e=>{importFiles(e.target.files);e.target.value=''};
-$('#impBtn').onclick=e=>menu([['Add audio files',()=>$('#fileIn').click()],['Add a music folder',()=>$('#dirIn').click()]],e.currentTarget);
+$('#impBtn').onclick=e=>menu([['Import audio files',()=>$('#fileIn').click()],['Import a folder',()=>$('#dirIn').click()]],e.currentTarget);
 addEventListener('dragover',e=>e.preventDefault());
 addEventListener('drop',e=>{e.preventDefault();if(e.dataTransfer&&e.dataTransfer.files.length)importFiles(e.dataTransfer.files)});
 
@@ -3872,11 +3196,9 @@ function ask(o){
     no.hidden=Boolean(o.hideCancel);
     d.classList.add('open');
     if(o.input)setTimeout(()=>i.focus(),60);
-    else setTimeout(()=>ok.focus(),40);
     const done=v=>{
       d.classList.remove('open');
       ok.onclick=no.onclick=i.onkeydown=null;
-      resetRootScroll();
       res(v);
     };
     ok.onclick=()=>done(o.input?i.value:true);
@@ -3911,6 +3233,7 @@ const ib=(n,t,f,c)=>{
   return b;
 };
 
+/* Legitimate Track Download Logic inside Library */
 function inferExtensionFromMime(mime,fallbackExt){
   const m=String(mime||'').toLowerCase();
   if(m.includes('mpeg')||m.includes('mp3'))return 'mp3';
@@ -3944,14 +3267,14 @@ async function downloadLibraryTrack(m,btnEl){
     if(btnEl){
       btnEl.classList.remove('busy');
       btnEl.innerHTML=icon('dl');
-      btnEl.title='Save audio file';
+      btnEl.title='Download audio file';
     }
     toast('Download cancelled');
     return;
   }
 
   const buildFileName=(ext)=>{
-    const artist=m.folder&&m.folder!=='Local Audio'&&m.folder!=='My Music'?safeFilename(m.folder)+' - ':'';
+    const artist=m.folder&&m.folder!=='Local Audio'?safeFilename(m.folder)+' - ':'';
     const title=safeFilename(m.name);
     return `${artist}${title}.${ext}`;
   };
@@ -3963,12 +3286,12 @@ async function downloadLibraryTrack(m,btnEl){
   if(blob instanceof Blob&&blob.size>0){
     const ext=inferExtensionFromMime(blob.type||m.mime,m.ext);
     triggerBlobDownload(blob,buildFileName(ext));
-    toast(`Saved "${m.name}"`);
+    toast(`Downloaded "${m.name}"`);
     return;
   }
 
   if(m.downloadEligible===false){
-    toast('Download is not available for this song');
+    toast('Direct download is not permitted for this track license');
     return;
   }
 
@@ -3978,13 +3301,13 @@ async function downloadLibraryTrack(m,btnEl){
     if(!btnEl)return;
     btnEl.classList.add('busy');
     btnEl.textContent=txt;
-    btnEl.title='Tap to cancel';
+    btnEl.title='Click to cancel download';
   };
   const restoreBtn=()=>{
     if(!btnEl)return;
     btnEl.classList.remove('busy');
     btnEl.innerHTML=icon('dl');
-    btnEl.title='Save audio file';
+    btnEl.title='Download audio file';
   };
 
   try{
@@ -3998,7 +3321,7 @@ async function downloadLibraryTrack(m,btnEl){
       }
     }
     if(!targetUrl||!isVerifiedHttpsUrl(targetUrl)){
-      throw new Error('No direct audio link available');
+      throw new Error('No verified direct download URL available');
     }
 
     const r=await fetch(targetUrl,{
@@ -4010,7 +3333,7 @@ async function downloadLibraryTrack(m,btnEl){
     if(!r.ok)throw new Error(`HTTP ${r.status}`);
     const contentType=r.headers.get('content-type')||'audio/mpeg';
     if(contentType.includes('text/html')||contentType.includes('application/json')){
-      throw new Error('Not a direct audio file');
+      throw new Error('Endpoint returned a webpage instead of an audio file');
     }
     const total=parseInt(r.headers.get('content-length')||'0',10);
     let finalBlob;
@@ -4034,7 +3357,7 @@ async function downloadLibraryTrack(m,btnEl){
         }
       }
       if(total>0&&received<total){
-        throw new Error('Download stopped early');
+        throw new Error('Stream ended before the complete file finished downloading');
       }
       finalBlob=new Blob(chunks,{type:contentType});
     }else{
@@ -4042,22 +3365,22 @@ async function downloadLibraryTrack(m,btnEl){
     }
 
     if(!finalBlob||finalBlob.size<1024){
-      throw new Error('Audio file was empty');
+      throw new Error('Downloaded audio data was empty or incomplete');
     }
     const ext=inferExtensionFromMime(contentType,m.ext);
     triggerBlobDownload(finalBlob,buildFileName(ext));
-    toast(`Saved: ${m.name}`);
+    toast(`Download complete: ${m.name}`);
   }catch(err){
     if(err&&err.name==='AbortError')return;
     if(m.externalUrl&&isVerifiedHttpsUrl(m.externalUrl)){
       const openPage=await ask({
-        title:'Open Song Page',
-        text:`This music source does not allow direct browser saving. Would you like to open the song's official page instead?`,
-        ok:'Open Page'
+        title:'Direct Download Restricted',
+        text:`This provider restricts direct cross-origin file downloads in the browser (${err.message||'CORS'}). Would you like to open the official track page on the provider's site instead?`,
+        ok:'Open Provider Page'
       });
       if(openPage)window.open(m.externalUrl,'_blank','noopener,noreferrer');
     }else{
-      toast('Could not save file directly');
+      toast('Direct download failed: '+sanitizeMessage(err.message||'CORS or network error'));
     }
   }finally{
     activeDownloads.delete(m.id);
@@ -4065,53 +3388,25 @@ async function downloadLibraryTrack(m,btnEl){
   }
 }
 
-function findDuplicateLibraryTrack(candidate){
-  if(!candidate)return null;
-  const fp=candidate.fingerprint||getTrackFingerprint(candidate.name,candidate.folder);
-  if(!fp||fp==='::')return null;
-  for(const existing of S.lib.values()){
-    if(!existing||existing.ephemeral||existing.id===candidate.id)continue;
-    const exFp=existing.fingerprint||getTrackFingerprint(existing.name,existing.folder);
-    if(exFp===fp)return existing;
-  }
-  return null;
-}
-
 async function saveTrackToLibrary(m){
   if(!m)return;
-  const dup=findDuplicateLibraryTrack(m);
-  if(dup){
-    if(!dup.remoteUrl&&m.remoteUrl)dup.remoteUrl=m.remoteUrl;
-    if(!dup.art&&m.art)dup.art=m.art;
-    if(!dup.dur&&m.dur)dup.dur=m.dur;
-    await idb('tracks','readwrite',s=>s.put(dup)).catch(()=>{});
-    chips();
-    renderLib();
-    renderQ();
-    toast(`"${dup.name}" is already in your Library`);
-    return dup.id;
-  }
   m.ephemeral=false;
-  m.fingerprint=m.fingerprint||getTrackFingerprint(m.name,m.folder);
   S.lib.set(m.id,m);
   await idb('tracks','readwrite',s=>s.put(m)).catch(()=>{});
   chips();
   renderLib();
-  renderQ();
   toast(`Saved "${m.name}" to Library`);
-  return m.id;
 }
 
 async function newPl(cb){
-  const n=clean(await ask({title:'New Playlist',text:'Enter a name for your playlist:',input:true,ok:'Create'})||'');
+  const n=clean(await ask({title:'New list',text:'Give your playlist a name.',input:true,ok:'Create'})||'');
   if(!n)return;
   if(!S.pl[n])S.pl[n]=[];
-  await savePl();
+  savePl();
   chips();
   if(cb)cb(n);else toast('Playlist created');
 }
 function addToPl(n,ids){
-  if(!S.pl[n])S.pl[n]=[];
   const set=new Set(S.pl[n]);
   let c=0;
   ids.forEach(i=>{
@@ -4165,7 +3460,7 @@ function removeAt(i){
       A.load();
       intent=false;
       ui();
-      setTitle('Queue is empty','Add your songs or search online music');
+      setTitle('Queue is empty','Import local tracks or open the Direct Audio Hub');
     }
   }
   saveQ();
@@ -4182,24 +3477,12 @@ function move(i,d){
 }
 function visible(){
   const q=$('#q').value.trim().toLowerCase().slice(0,100),f=S.filter;
-  let r=[];
-  if(f.k==='recent'){
-    r=S.recent.map(entry=>S.lib.get(entry.id)).filter(Boolean);
-  }else if(f.k==='most'){
-    r=[...S.lib.values()].filter(m=>(+m.playCount||0)>0).sort((a,b)=>(+b.playCount||0)-(+a.playCount||0)||(+b.lastPlayedAt||0)-(+a.lastPlayedAt||0));
-  }else if(f.k==='liked'){
-    r=[...S.lib.values()].filter(m=>m.liked);
-  }else if(f.k==='fmt'){
-    r=[...S.lib.values()].filter(m=>!m.ephemeral&&m.ext===f.v);
-  }else if(f.k==='pl'){
-    r=(S.pl[f.v]||[]).map(i=>S.lib.get(i)).filter(Boolean);
-  }else{
-    r=[...S.lib.values()].filter(m=>!m.ephemeral);
-  }
+  let r=[...S.lib.values()].filter(m=>!m.ephemeral);
+  if(f.k==='liked')r=r.filter(m=>m.liked);
+  else if(f.k==='fmt')r=r.filter(m=>m.ext===f.v);
+  else if(f.k==='pl')r=(S.pl[f.v]||[]).map(i=>S.lib.get(i)).filter(m=>m&&!m.ephemeral);
   if(q)r=r.filter(m=>m.name.toLowerCase().includes(q)||(m.folder||'').toLowerCase().includes(q)||(m.providerLabel||'').toLowerCase().includes(q));
-  if(f.k!=='pl'&&f.k!=='recent'&&f.k!=='most'){
-    r.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
-  }
+  if(f.k!=='pl')r.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
   return r;
 }
 function chips(){
@@ -4210,19 +3493,13 @@ function chips(){
   const c=$('#chips');
   c.replaceChildren();
   const add=(t,k,v)=>{
-    const active=S.filter.k===k&&S.filter.v===v;
-    const b=el('button','chip'+(active?' on':''),t);
+    const b=el('button','chip'+(S.filter.k===k&&S.filter.v===v?' on':''),t);
     b.type='button';
-    b.setAttribute('aria-pressed',String(active));
-    b.onclick=()=>{S.filter={k,v};chips();renderLib();saveSessionStateNow()};
+    b.onclick=()=>{S.filter={k,v};chips();renderLib()};
     c.append(b);
   };
   add('All','all');
   add('♥ Liked','liked');
-  add(`↺ Recent (${S.recent.length})`,'recent');
-  if([...S.lib.values()].some(m=>(+m.playCount||0)>0)){
-    add('★ Top Played','most');
-  }
   [...new Set(savedTracks.map(m=>m.ext).filter(Boolean))].sort().forEach(e=>add(e.toUpperCase(),'fmt',e));
   Object.keys(S.pl).forEach(n=>add('♪ '+n,'pl',n));
   const nb=el('button','chip','+ New list');
@@ -4230,16 +3507,6 @@ function chips(){
   nb.onclick=()=>newPl();
   c.append(nb);
   $('#delPl').hidden=S.filter.k!=='pl';
-  const clrHist=$('#clrHistBtn');
-  if(clrHist)clrHist.hidden=S.filter.k!=='recent'||!S.recent.length;
-}
-function formatRelativePlayed(ts){
-  if(!ts)return '';
-  const diff=Math.max(0,Math.floor((Date.now()-ts)/1000));
-  if(diff<60)return 'Just now';
-  if(diff<3600)return Math.floor(diff/60)+'m ago';
-  if(diff<86400)return Math.floor(diff/3600)+'h ago';
-  return Math.floor(diff/86400)+'d ago';
 }
 function rowEl(m){
   const r=el('div','item'),t=el('div','meta');
@@ -4255,10 +3522,6 @@ function rowEl(m){
   }
   const subParts=[m.providerLabel||String(m.ext||'AUDIO').toUpperCase(),m.folder];
   if(m.dur)subParts.push(fmt(m.dur));
-  if((+m.playCount||0)>0)subParts.push(`Played ${m.playCount}×`);
-  if(S.filter.k==='recent'&&m.lastPlayedAt)subParts.push(formatRelativePlayed(m.lastPlayedAt));
-  if(m.completedCount>0&&S.filter.k==='recent')subParts.push('✓ Finished');
-  if(m.localMissing)subParts.push('⚠ File Missing');
   t.append(el('b','',m.name),el('small','',subParts.filter(Boolean).join(' · ')));
   r.append(t);
   r.dataset.id=m.id;
@@ -4269,40 +3532,36 @@ function renderLib(){
   L.replaceChildren();
   const savedCount=[...S.lib.values()].filter(m=>!m.ephemeral).length;
   if(!list.length){
-    let emptyMsg='No saved songs yet. Add songs from your device or save music from Online Music.';
-    if(S.filter.k==='liked')emptyMsg='No liked songs yet. Tap the ♥ heart icon on any song to save it here.';
-    else if(S.filter.k==='recent')emptyMsg='No recently played songs yet. Songs you play will show up here.';
-    else if(S.filter.k==='pl')emptyMsg=`Playlist "${S.filter.v}" is empty. Use a song's ⋮ menu to add songs here.`;
-    else if(savedCount)emptyMsg='No songs match your search.';
-    L.append(el('div','empty',emptyMsg));
+    L.append(el('div','empty',savedCount?'Nothing matches this filter':'Import local audio files or save online tracks from the Hub to build your library'));
     return;
   }
   list.forEach((m,i)=>{
     const r=rowEl(m);
     r.onclick=()=>playList(list,i);
-    r.append(ib('heart',m.liked?'Unlike':'Like',b=>toggleTrackFavorite(m,b),m.liked));
+    r.append(ib('heart',m.liked?'Unlike':'Like',b=>{
+      m.liked=!m.liked;
+      b.classList.toggle('on',m.liked);
+      if(!m.ephemeral)idb('tracks','readwrite',s=>s.put(m)).catch(()=>{});
+      if(S.filter.k==='liked'&&!m.liked)renderLib();
+    },m.liked));
 
-    const dlBtn=ib('dl',m.downloadEligible===false?'Save unavailable':'Save audio file',b=>downloadLibraryTrack(m,b));
+    const dlBtn=ib('dl',m.downloadEligible===false?'Download unavailable for this source':'Download audio file',b=>downloadLibraryTrack(m,b));
     if(m.downloadEligible===false)dlBtn.disabled=true;
     r.append(dlBtn);
 
     r.append(ib('trash','Delete from library',()=>delTrack(m.id)));
 
-    r.append(ib('more','More options',b=>{
+    r.append(ib('more','More actions',b=>{
       const it=[
         ['Play next',()=>enqueue([m.id],true)],
         ['Add to queue',()=>enqueue([m.id],false)],
-        ['Add to playlist…',()=>plMenu([m.id],b)],
-        ['Save audio file',()=>downloadLibraryTrack(m,dlBtn)]
+        ['Add to list…',()=>plMenu([m.id],b)],
+        ['Download audio file',()=>downloadLibraryTrack(m,dlBtn)]
       ];
-      if(m.ephemeral){
-        it.unshift(['Save to Library',()=>saveTrackToLibrary(m)]);
-      }
       if(m.externalUrl&&isVerifiedHttpsUrl(m.externalUrl)){
-        it.push(['Open song web page',()=>window.open(m.externalUrl,'_blank','noopener,noreferrer')]);
+        it.push(['Open source / license page',()=>window.open(m.externalUrl,'_blank','noopener,noreferrer')]);
       }
-      if(S.filter.k==='pl')it.push(['Remove from playlist',()=>{S.pl[S.filter.v]=S.pl[S.filter.v].filter(x=>x!==m.id);savePl();renderLib()}]);
-      if(S.filter.k==='recent')it.push(['Remove from history',()=>{S.recent=S.recent.filter(x=>x.id!==m.id);saveRecent();chips();renderLib()}]);
+      if(S.filter.k==='pl')it.push(['Remove from this list',()=>{S.pl[S.filter.v]=S.pl[S.filter.v].filter(x=>x!==m.id);savePl();renderLib()}]);
       it.push(['Delete from library',()=>delTrack(m.id)]);
       menu(it,b);
     }));
@@ -4315,7 +3574,7 @@ function renderQ(){
   const L=$('#qList'),fr=document.createDocumentFragment();
   L.replaceChildren();
   if(!S.queue.length){
-    L.append(el('div','empty','Your queue is empty. Add songs from your device or search in Online Music.'));
+    L.append(el('div','empty','The queue is empty. Import local tracks or use the Online Direct Audio Hub.'));
     return;
   }
   S.queue.forEach((id,i)=>{
@@ -4325,9 +3584,8 @@ function renderQ(){
     const bEl=r.querySelector('.meta b');
     if(bEl)bEl.textContent=(i+1)+'. '+m.name;
     r.onclick=()=>{engine();if(S.pos>=0)S.hist.push(S.pos);playIndex(i,{auto:true})};
-    r.append(ib('heart',m.liked?'Unlike':'Like',b=>toggleTrackFavorite(m,b),m.liked));
     if(m.ephemeral){
-      r.append(ib('save','Save song to Library',()=>saveTrackToLibrary(m)));
+      r.append(ib('save','Save track to Library',()=>saveTrackToLibrary(m)));
     }
     r.append(ib('up','Move up',()=>move(i,-1)),ib('down','Move down',()=>move(i,1)),ib('trash','Remove from queue',()=>removeAt(i)));
     fr.append(r);
@@ -4335,28 +3593,12 @@ function renderQ(){
   L.append(fr);
   mark();
 }
-
-function scrollItemIntoContainer(listEl,itemEl){
-  if(!listEl||!itemEl)return;
-  const listRect=listEl.getBoundingClientRect();
-  const itemRect=itemEl.getBoundingClientRect();
-  if(!listRect.height)return;
-  if(itemRect.top<listRect.top){
-    listEl.scrollTop+=itemRect.top-listRect.top-6;
-  }else if(itemRect.bottom>listRect.bottom){
-    listEl.scrollTop+=itemRect.bottom-listRect.bottom+6;
-  }
-}
-
 function mark(){
   const id=S.queue[S.pos];
   $$('#lList .item').forEach(r=>r.classList.toggle('on',mode==='file'&&r.dataset.id===id));
   $$('#qList .item').forEach(r=>r.classList.toggle('on',mode==='file'&&+r.dataset.q===S.pos));
   const c=$('#qList .item.on');
-  if(c&&!libSheetEl.classList.contains('animating')&&(libSheetEl.classList.contains('open')||wideMQ.matches)){
-    scrollItemIntoContainer($('#qList'),c);
-  }
-  syncFavButtonUI();
+  if(c&&(libSheetEl.classList.contains('open')||wideMQ.matches))c.scrollIntoView({block:'nearest'});
 }
 async function delTrack(id){
   if(activeDownloads.has(id)){
@@ -4365,48 +3607,30 @@ async function delTrack(id){
   }
   S.lib.delete(id);
   cache.delete(id);
-  S.recent=S.recent.filter(r=>r&&r.id!==id);
   Object.keys(S.pl).forEach(n=>{S.pl[n]=S.pl[n].filter(x=>x!==id)});
   await idb('tracks','readwrite',s=>s.delete(id)).catch(()=>{});
   await idb('blobs','readwrite',s=>s.delete(id)).catch(()=>{});
   savePl();
-  saveRecent();
   for(let i=S.queue.length-1;i>=0;i--)if(S.queue[i]===id)removeAt(i);
   chips();
   renderLib();
-  updateStorageStatsUI();
-  toast('Song removed from library');
+  toast('Track removed from library');
 }
 $('#q').oninput=()=>{clearTimeout($('#q').t);$('#q').t=setTimeout(renderLib,120)};
 $('#playAll').onclick=()=>{const l=visible();if(l.length)playList(l,0)};
 $('#addAll').onclick=()=>{const l=visible();if(l.length)enqueue(l.map(m=>m.id),false)};
 $('#delPl').onclick=async()=>{
   const n=S.filter.v;
-  if(n&&await ask({title:'Delete Playlist',text:'Delete "'+n+'"? Your songs will stay in your library.',ok:'Delete'})){
+  if(n&&await ask({title:'Delete list',text:'Delete "'+n+'"? Your songs stay in the library.',ok:'Delete'})){
     delete S.pl[n];
     S.filter={k:'all'};
-    await savePl();
+    savePl();
     chips();
     renderLib();
-    toast(`Deleted playlist "${n}"`);
   }
 };
-const clearHistoryAction=async()=>{
-  if(!S.recent.length)return toast('History is already empty');
-  if(await ask({title:'Clear History',text:'Clear your recently played songs list? Your saved songs and playlists will stay safe.',ok:'Clear'})){
-    S.recent=[];
-    await saveRecent();
-    chips();
-    renderLib();
-    updateStorageStatsUI();
-    toast('History cleared');
-  }
-};
-if($('#clrHistBtn'))$('#clrHistBtn').onclick=clearHistoryAction;
-if($('#clearHistoryAbBtn'))$('#clearHistoryAbBtn').onclick=clearHistoryAction;
-
 $('#wipe').onclick=async()=>{
-  if(!S.lib.size||!await ask({title:'Clear Library',text:'Delete all saved songs from this device?',ok:'Delete all'}))return;
+  if(!S.lib.size||!await ask({title:'Clear library',text:'Delete every saved song from this device?',ok:'Delete all'}))return;
   token++;
   A.pause();
   releaseActiveBlobUrl();
@@ -4418,14 +3642,8 @@ $('#wipe').onclick=async()=>{
   S.queue=[];
   S.pos=-1;
   S.hist=[];
-  S.recent=[];
   S.pl=Object.create(null);
   S.filter={k:'all'};
-  try{
-    localStorage.removeItem('rp3_session');
-    localStorage.removeItem('rp3_pl');
-    localStorage.removeItem('rp3_recent');
-  }catch(_){}
   await Promise.all([
     idb('tracks','readwrite',s=>s.clear()),
     idb('blobs','readwrite',s=>s.clear()),
@@ -4436,7 +3654,6 @@ $('#wipe').onclick=async()=>{
   chips();
   renderLib();
   renderQ();
-  updateStorageStatsUI();
 };
 $('#qShuf').onclick=()=>{
   const h=S.queue.slice(0,S.pos+1);
@@ -4448,114 +3665,54 @@ $('#qShuf').onclick=()=>{
   renderQ();
 };
 $('#qClear').onclick=()=>{
-  const keep=S.pos>=0&&intent?[S.queue[S.pos]]:[];
+  const keep=S.pos>=0?[S.queue[S.pos]]:[];
   S.queue=keep;
   S.pos=keep.length?0:-1;
   S.hist=[];
   S.up=null;
-  if(!keep.length){
-    token++;
-    A.pause();
-    releaseActiveBlobUrl();
-    A.removeAttribute('src');
-    A.load();
-    intent=false;
-    ui();
-    setTitle('Queue cleared','Your saved songs are still in Library');
-  }
   saveQ();
   renderQ();
-  toast('Queue cleared');
 };
 $('#qSave').onclick=()=>{if(!S.queue.length)return toast('The queue is empty');newPl(n=>addToPl(n,S.queue))};
 $$('#lib .tabs button').forEach(b=>b.onclick=()=>{
-  resetRootScroll();
-  $$('#lib .tabs button').forEach(x=>{
-    const on=x===b;
-    x.classList.toggle('on',on);
-    x.setAttribute('aria-selected',String(on));
-  });
+  $$('#lib .tabs button').forEach(x=>x.classList.toggle('on',x===b));
   $('#pq').classList.toggle('on',b.dataset.t==='q');
   $('#pl').classList.toggle('on',b.dataset.t==='l');
 });
 
-const SHEET_BTN_MAP={lib:'#libBtn',fx:'#fxBtn',th:'#thBtn',ex:'#extBtn',ab:'#abBtn'};
-function syncMobileSheetBackdrop(){
-  resetRootScroll();
-  const anyMobileOpen=!wideMQ.matches&&allSheets.some(s=>s.classList.contains('open'));
-  document.documentElement.classList.toggle('mobile-sheet-open',anyMobileOpen);
-  if(sheetBackdrop)sheetBackdrop.classList.toggle('on',anyMobileOpen);
-  if(playerMain){
-    if(anyMobileOpen){
-      playerMain.setAttribute('aria-hidden','true');
-      try{playerMain.inert=true}catch(_){}
-    }else{
-      playerMain.removeAttribute('aria-hidden');
-      try{playerMain.inert=false}catch(_){}
-    }
-  }
-  Object.entries(SHEET_BTN_MAP).forEach(([id,btnSel])=>{
-    const btn=$(btnSel),sheet=$('#'+id);
-    if(btn&&sheet){
-      const expanded=sheet.classList.contains('open')||(id==='lib'&&wideMQ.matches);
-      btn.setAttribute('aria-expanded',String(expanded));
-    }
-  });
-}
-
+/* Glitch-Free Drawer Open/Close with TransitionEnd Cleanup (Never Snaps Mid-Way) */
 allSheets.forEach(s=>{
-  const clearAnim=e=>{
-    if(!e||e.target===s){
+  s.addEventListener('transitionend',e=>{
+    if(e.target===s&&e.propertyName==='transform'){
       clearTimeout(s._mbTimer);
       s.classList.remove('animating');
-      if(s.id==='lib'&&s.classList.contains('open'))mark();
     }
-  };
-  s.addEventListener('transitionend',clearAnim);
-  s.addEventListener('transitioncancel',clearAnim);
+  });
 });
 
 function triggerSheetMotion(s,open){
   if(!s)return;
-  syncViewportHeight(true);
-  if(s.id==='lib'&&wideMQ.matches){
-    s.classList.remove('open','animating');
-    syncMobileSheetBackdrop();
-    return;
-  }
+  if(s.id==='lib'&&wideMQ.matches)return;
   const wasOpen=s.classList.contains('open');
-  if(wasOpen===open){
-    s.classList.remove('animating');
-    syncMobileSheetBackdrop();
-    return;
-  }
+  if(wasOpen===open)return;
   clearTimeout(s._mbTimer);
   if(!reduceMotionMQ.matches){
     s.classList.add('animating');
-    s._mbTimer=setTimeout(()=>{
-      s.classList.remove('animating');
-      if(s.id==='lib'&&s.classList.contains('open'))mark();
-    },310);
+    /* Clear blur smoothly near the end of the slide so it never snaps mid-way */
+    s._mbTimer=setTimeout(()=>s.classList.remove('animating'),220);
   }
   s.classList.toggle('open',open);
-  syncMobileSheetBackdrop();
 }
 
 function openSheet(id){
-  syncViewportHeight(true);
   allSheets.forEach(s=>{
     if((s.id!==id&&s.id!=='lib')||(s.id==='lib'&&id!=='lib')){
       triggerSheetMotion(s,false);
     }
   });
   const target=$('#'+id);
-  if(target){
-    triggerSheetMotion(target,true);
-    if(id!=='lib')target.scrollTop=0;
-  }
-  if(id==='lib'){
-    setTimeout(mark,300);
-  }
+  if(target)triggerSheetMotion(target,true);
+  if(id==='lib')requestAnimationFrame(mark);
   if(id==='fx'){
     requestAnimationFrame(()=>{
       apLast=performance.now();
@@ -4564,27 +3721,7 @@ function openSheet(id){
       scheduleFrameLoop();
     });
   }
-  if(id==='ab'){
-    updateStorageStatsUI();
-  }
 }
-
-if(sheetBackdrop){
-  sheetBackdrop.onclick=()=>{
-    allSheets.forEach(s=>{if(s.classList.contains('open'))triggerSheetMotion(s,false)});
-    syncMobileSheetBackdrop();
-    scheduleFrameLoop();
-  };
-}
-wideMQ.addEventListener?.('change',()=>{
-  if(wideMQ.matches){
-    libSheetEl.classList.remove('open','animating');
-  }
-  syncViewportHeight(true);
-  syncMobileSheetBackdrop();
-  resizeVisCanvas();
-});
-
 $('#libBtn').onclick=()=>openSheet('lib');
 $('#fxBtn').onclick=()=>openSheet('fx');
 $('#thBtn').onclick=()=>openSheet('th');
@@ -4596,6 +3733,7 @@ $$('[data-close]').forEach(b=>b.onclick=()=>{
   requestAnimationFrame(scheduleFrameLoop);
 });
 
+/* Ultra-Fast rAF-Coalesced Theme Engine */
 const themeMetaEl=$('meta[name=theme-color]');
 let themeRaf=0,themeDragTimer=0;
 function applyThemeNow(syncMeta=false){
@@ -4629,7 +3767,7 @@ function theme(){
     applyThemeNow(false);
   });
 }
-[['ah','Accent',0,360,350,v=>v+'°'],['bh','Background',0,360,220,v=>v+'°'],['bl','Brightness',15,92,88,v=>v+'%']].forEach(([k,l,mn,mx,d,fmtFn])=>{
+[['ah','Accent',0,360,350,v=>v+'°'],['bh','Base hue',0,360,220,v=>v+'°'],['bl','Brightness',15,92,88,v=>v+'%']].forEach(([k,l,mn,mx,d,fmtFn])=>{
   const[r,s,vEl]=row(l,{min:mn,max:mx,step:1,value:clamp(nz(cfg.th[k],d),mn,mx)},fmtFn);
   thIn[k]=s;
   $('#thList').append(r);
@@ -4688,27 +3826,14 @@ $('#fxReset').onclick=()=>{
   updateEqHeadroom();
   updateSpatialRouting();
   save();
-  toast('Sound settings reset');
+  toast('Audio engine reset to defaults');
 };
 
 document.addEventListener('visibilitychange',()=>{
   apLast=performance.now();
-  if(document.hidden){
-    saveNow();
-    saveSessionStateNow();
-  }else if(ctx&&intent&&ctx.state!=='running'){
-    ctx.resume().catch(()=>{});
-  }
+  if(ctx&&intent&&ctx.state!=='running')ctx.resume().catch(()=>{});
   scheduleFrameLoop();
   if(!document.hidden&&apOn)pos();
-});
-window.addEventListener('pagehide',()=>{
-  saveNow();
-  saveSessionStateNow();
-});
-window.addEventListener('beforeunload',()=>{
-  saveNow();
-  saveSessionStateNow();
 });
 window.addEventListener('focus',()=>{
   apLast=performance.now();
@@ -4724,7 +3849,6 @@ addEventListener('keydown',e=>{
     if($('#tutDlg').classList.contains('open')){$('#tutClose').click();return}
     if($('#warnDlg').classList.contains('open')){$('#warnCancel').click();return}
     if($('#dlg').classList.contains('open')){$('#dlgNo').click();return}
-    if(fallbackFsActive){fallbackFsActive=false;syncFullscreenUI();return}
     allSheets.forEach(s=>{if(s.classList.contains('open')&&(s.id!=='lib'||!wideMQ.matches))triggerSheetMotion(s,false)});
     apLast=performance.now();
     scheduleFrameLoop();
@@ -4738,10 +3862,10 @@ addEventListener('keydown',e=>{
 
 discEl.setAttribute('role','button');
 discEl.tabIndex=0;
-discEl.setAttribute('aria-label','Change disc picture');
+discEl.setAttribute('aria-label','Change disc image');
 const discMenu=()=>menu([
-  ['Choose disc picture',()=>$('#imgIn').click()],
-  ['Use default vinyl disc',async()=>{
+  ['Choose disc image',()=>$('#imgIn').click()],
+  ['Use default vinyl',async()=>{
     if(discUrl)URL.revokeObjectURL(discUrl);
     discUrl=null;
     await kvSet('disc',null);
@@ -4754,127 +3878,77 @@ $('#imgIn').onchange=e=>{
   const f=e.target.files[0];
   e.target.value='';
   if(!f)return;
-  if(!/^image\/(png|jpeg|webp|gif)$/.test(f.type)||f.size>8e6)return toast('Please choose an image under 8 MB');
+  if(!/^image\/(png|jpeg|webp|gif)$/.test(f.type)||f.size>8e6)return toast('Use a PNG, JPG, WebP or GIF under 8 MB');
   const u=URL.createObjectURL(f),i=new Image();
   i.onload=()=>{if(discUrl)URL.revokeObjectURL(discUrl);discUrl=u;kvSet('disc',f);setDisc(discList())};
-  i.onerror=()=>{URL.revokeObjectURL(u);toast('Could not load that image')};
+  i.onerror=()=>{URL.revokeObjectURL(u);toast('That image could not be loaded')};
   i.src=u;
 };
 kvGet('disc').then(b=>{if(b instanceof Blob)discUrl=URL.createObjectURL(b);setDisc(discList())});
 
-async function updateStorageStatsUI(){
-  const txtEl=$('#storageStatsTxt');
-  if(!txtEl)return;
-  const savedTracks=[...S.lib.values()].filter(m=>!m.ephemeral);
-  const localTracks=savedTracks.filter(m=>!m.remoteUrl&&!m.archiveId);
-  const favCount=[...S.lib.values()].filter(m=>m.liked).length;
-  const plCount=Object.keys(S.pl).length;
-  let usageBytes=0;
-  try{
-    if(navigator.storage&&navigator.storage.estimate){
-      const est=await navigator.storage.estimate();
-      usageBytes=est.usage||0;
-    }
-  }catch(_){}
-  if(!usageBytes){
-    localTracks.forEach(m=>{usageBytes+=(+m.size||0)});
-  }
-  const mbUsed=(usageBytes/1048576).toFixed(1);
-  txtEl.textContent=`Saved songs: ${savedTracks.length} (${localTracks.length} from device, ${favCount} liked, ${plCount} playlists) · Recently played: ${S.recent.length} · Space used: ~${mbUsed} MB.`;
-}
-if($('#refreshStorageBtn'))$('#refreshStorageBtn').onclick=()=>{updateStorageStatsUI();toast('Info updated')};
-if($('#pruneBlobsBtn'))$('#pruneBlobsBtn').onclick=async()=>{
-  try{
-    const d=await db;
-    if(!d)return toast('Storage unavailable');
-    let removed=0;
-    await new Promise((ok,no)=>{
-      const tx=d.transaction(['blobs'],'readwrite');
-      const store=tx.objectStore('blobs');
-      const req=store.openCursor();
-      req.onsuccess=e=>{
-        const cur=e.target.result;
-        if(!cur)return;
-        if(!S.lib.has(cur.key)){
-          cur.delete();
-          removed++;
-        }
-        cur.continue();
-      };
-      tx.oncomplete=ok;
-      tx.onerror=tx.onabort=no;
-    });
-    cache.clear();
-    updateStorageStatsUI();
-    toast(removed?`Cleaned ${removed} unused file(s)`:'Storage is already clean');
-  }catch(_){
-    toast('Could not clean cache');
-  }
-};
-
-/* Easy-Language 9-Step Guide */
+/* Interactive 9-Step In-App Tutorial */
 const TUTORIAL_STEPS=[
   {
-    title:'1. Add Songs from Your Device',
-    body:'Tap the "+" button at the top left (or drag and drop audio files onto the player) to add songs or a music folder from your phone or computer.',
-    example:'Tip: Your added songs stay saved in your browser so they are ready next time you open the player.',
-    actionLabel:'Add Songs Now',
+    title:'1. Import Local Audio Files',
+    body:'Tap the "+" button in the top-left toolbar (or drag and drop files anywhere onto the player) to import audio files or an entire music folder from your device.',
+    example:'Example: Import MP3, FLAC, WAV, M4A, or OGG files. They stay privately on your device inside your browser storage.',
+    actionLabel:'Try Importing Local Files',
     action:()=>$('#fileIn').click()
   },
   {
-    title:'2. Search & Play Online Music',
-    body:'Tap the puzzle icon at the top and turn on "Enable Online Music Search". Type a song or artist name and tap Search, or tap one of the quick music tags.',
-    example:'Tip: Even if you make a small spelling mistake, smart search will still find matching songs.',
-    actionLabel:'Open Online Music',
+    title:'2. Select & Play Online Tracks',
+    body:'Open the puzzle-piece Hub icon in the top toolbar and toggle "Enable Online Music Search". Choose All Open, Audius HQ, CC Archive, or WikiCommons, then tap a quick tag or search by keyword.',
+    example:'Example: Tap "Lofi Beats" or search "Ambient Piano", then tap any result row to start progressive streaming immediately.',
+    actionLabel:'Open Online Direct Audio Hub',
     action:()=>openSheet('ex')
   },
   {
-    title:'3. Queue, Liked & Recent Songs',
-    body:'Queue shows the songs playing now. Library keeps your saved songs, ♥ Liked favorites, and ↺ Recent listening history.',
-    example:'Tip: Tap the ♥ heart button on the player or on any song row to add it to your Liked list.',
+    title:'3. Queue & Saved Library',
+    body:'Your Queue holds tracks lined up for current playback, while your Library keeps your imported songs and any online tracks you choose to save.',
+    example:'Example: In the Queue tab, reorder songs with the Up/Down arrows. In the Hub or Queue, tap the Save icon to keep an online track in your Library.',
     actionLabel:'Open Queue & Library',
     action:()=>openSheet('lib')
   },
   {
-    title:'4. Make Your Own Playlists',
-    body:'In the Library tab, tap "+ New list" to create a playlist, or tap "Save as list" in the Queue tab to save your current queue.',
-    example:'Tip: Tap the three-dot menu (⋮) on any song to add it to a playlist.',
-    actionLabel:'Open Playlists',
+    title:'4. Create & Manage Playlists',
+    body:'Switch to the Library tab and tap "+ New list" in the filter bar, or tap "Save as list" in the Queue tab to save your current queue as a custom playlist.',
+    example:'Example: Create a "Focus Mix" playlist, then use any track\'s three-dot menu ("Add to list…") to add songs to it.',
+    actionLabel:'Go to Library Playlists',
     action:()=>{openSheet('lib');$$('#lib .tabs button')[1]?.click()}
   },
   {
-    title:'5. Equalizer & Sound Presets',
-    body:'Open Sound & Equalizer to pick from 25 ready-made sound styles (like Bass Boost, Rock, Pop, Vocal Clarity, or Headphones) or adjust the 15 sliders yourself.',
-    example:'Tip: Tap "Flat / Reset" anytime to return all equalizer sliders to normal.',
-    actionLabel:'Open Equalizer',
+    title:'5. Equalizer Presets & Manual Bands',
+    body:'Open the Audio Parameters panel to access 25 presets (such as Rock, Pop, Vocal Clarity, Bass Boost, Headphones, and Studio Reference) across 15 frequency bands.',
+    example:'Example: Pick a preset to shape the sound curve, then nudge any slider manually—the badge automatically shows "(Customized)" until you tap "Flat / Reset".',
+    actionLabel:'Open 15-Band Equalizer',
     action:()=>openSheet('fx')
   },
   {
-    title:'6. 3D Surround Sound & Room Echo',
-    body:'Move the dot on the round 3D pad (or turn on "Auto Move Sound Around You") to place the music around you, and adjust Room Echo for a concert-hall feel.',
-    example:'Tip: Tap "Center Position" anytime to bring the sound back to the middle.',
-    actionLabel:'Open 3D Sound',
+    title:'6. Spatial Audio & Reverb',
+    body:'Drag the 3D Sound Motion pad (or turn on Auto 3D Orbit Pan) with HRTF Binaural Audio to position sound around your head. Adjust Dry, Wet, Room Size, and Damping for concert-hall depth.',
+    example:'Example: Lower Dry slightly and raise Wet + Room Size for a spacious hall sound, or widen the stage with the Stereo Width slider.',
+    actionLabel:'Open 3D Spatial & Reverb Controls',
     action:()=>openSheet('fx')
   },
   {
-    title:'7. Custom Vinyl Picture & Colors',
-    body:'Tap the spinning vinyl disc to put your own picture on the record, or open Themes to pick your favorite accent color and dark/light brightness.',
-    example:'Tip: Slide Brightness left for a dark theme or right for a light theme.',
-    actionLabel:'Open Themes',
+    title:'7. Real-Time Visualizer & Themes',
+    body:'The 3D vinyl disc spins to your playback speed while the outer spectrum halo and waveform ring react to live audio frequencies. Tap the vinyl disc to set custom artwork, or open Themes to customize colors.',
+    example:'Example: Open Themes to adjust Accent Hue, Base Hue, and Brightness smoothly in real time.',
+    actionLabel:'Open Theme Customizer',
     action:()=>openSheet('th')
   },
   {
-    title:'8. Save Audio Files',
-    body:'Each song in your Library has a download arrow button next to the delete button so you can save a copy of the audio file to your device.',
-    example:'Tip: Saved files are named clearly with the Artist and Song Title.',
-    actionLabel:'View Library',
+    title:'8. Save & Download Eligible Tracks',
+    body:'Every track in your Library includes a compact Download button right beside the Delete button. Clicking it downloads the real audio file with a clean "Artist - Title" filename.',
+    example:'Example: Local files download immediately from device storage; eligible open-licensed online tracks stream to a file with live percentage progress.',
+    actionLabel:'View Library Row Actions',
     action:()=>{openSheet('lib');$$('#lib .tabs button')[1]?.click()}
   },
   {
-    title:'9. Privacy & Artist Rights',
-    body:'Your personal music files stay on your device. When using Online Music, please respect artist licenses and only download songs when allowed.',
-    example:'Tip: You can review the online music notice anytime from About & Help.',
-    actionLabel:'View Online Notice',
+    title:'9. Privacy & Copyright',
+    body:'Local files never leave your device. When you use online search or streaming, your browser connects directly to the provider under its terms. Only download tracks when the license and provider permit it.',
+    example:'Example: Look for Creative Commons (CC) or Public Domain badges on Archive and Wikimedia Commons tracks, and use the external link icon to verify attribution.',
+    actionLabel:'Review Online Notice',
     action:()=>$('#reviewWarnBtn').click()
   }
 ];
@@ -4901,7 +3975,7 @@ function renderTutorialStep(idx){
   TUTORIAL_STEPS.forEach((_,i)=>{
     const d=el('button','tut-dot'+(i===curTutStep?' on':''),String(i+1));
     d.type='button';
-    d.setAttribute('aria-label',`Step ${i+1}`);
+    d.setAttribute('aria-label',`Go to step ${i+1}`);
     d.onclick=()=>renderTutorialStep(i);
     dotsBox.append(d);
   });
@@ -4917,20 +3991,17 @@ $('#tutNext').onclick=()=>{
 };
 $('#tutClose').onclick=()=>tutDlg.classList.remove('open');
 
-/* 7-Stage Typo-Tolerant Online Song Search */
+/* Online Direct Audio Hub */
 let onlineEnabled=false;
 let warningAcknowledged=false;
 let hubMode='all';
 let activeSearchController=null;
 let searchSeq=0;
-let searchDebounceTimer=0;
-const SEARCH_CACHE=new Map();
 
 const onlineToggleBtn=$('#onlineToggle');
 const onlineZone=$('#onlineZone');
 const onlineDot=$('#onlineDot');
 const onlineStatusTxt=$('#onlineStatusTxt');
-const hubMetaBar=$('#hubMetaBar');
 const warnDlg=$('#warnDlg');
 const warnCheck=$('#warnCheck');
 const warnAccept=$('#warnAccept');
@@ -4938,301 +4009,22 @@ const warnCancel=$('#warnCancel');
 
 const PROVIDER_META={
   all:{
-    label:'All Sources',
-    placeholder:'Type a song, artist, or style...'
+    label:'All Open Direct Sources',
+    placeholder:'Search open-licensed & artist-published tracks across all sources...'
   },
   audius:{
-    label:'Audius',
-    placeholder:'Search songs on Audius...'
+    label:'Audius HQ',
+    placeholder:'Search artist-published open tracks on Audius (direct 3D/EQ)...'
   },
   archive:{
-    label:'Archive',
-    placeholder:'Search songs on Internet Archive...'
+    label:'Internet Archive (CC / PD)',
+    placeholder:'Search Creative Commons & Public Domain tracks on Internet Archive...'
   },
   commons:{
-    label:'Commons',
-    placeholder:'Search audio on Wikimedia Commons...'
+    label:'Wikimedia Commons Free Audio',
+    placeholder:'Search Public Domain & CC-licensed audio on Wikimedia Commons...'
   }
 };
-
-const MUSIC_TYPO_MAP={
-  'loif':'lofi','lo-fi':'lofi','lofy':'lofi','lofii':'lofi',
-  'chil':'chill','chll':'chill','chilll':'chill','chilhop':'chillhop',
-  'ambinet':'ambient','ambeint':'ambient','ambiant':'ambient',
-  'pinao':'piano','paino':'piano','pianno':'piano',
-  'syntwave':'synthwave','sintwave':'synthwave','synthwawe':'synthwave','retorwave':'retrowave',
-  'clasical':'classical','classicla':'classical','clssical':'classical','classcial':'classical',
-  'orchestar':'orchestra','orcestra':'orchestra','orcherstra':'orchestra','orchestral':'orchestra',
-  'acustic':'acoustic','acostic':'acoustic','accoustic':'acoustic','acustc':'acoustic',
-  'guiter':'guitar','gitar':'guitar','guitarr':'guitar','gutar':'guitar',
-  'jaz':'jazz','jass':'jazz','jazzz':'jazz',
-  'instumental':'instrumental','instruemntal':'instrumental','instrumetal':'instrumental','intrumental':'instrumental',
-  'elecronic':'electronic','elctronic':'electronic','electronica':'electronic','electroinc':'electronic',
-  'bethoven':'beethoven','beethovn':'beethoven','betoven':'beethoven','beethovan':'beethoven',
-  'mozzart':'mozart','mozrat':'mozart','motzart':'mozart','mozat':'mozart',
-  'chopn':'chopin','chopin':'chopin','shopin':'chopin','chopen':'chopin',
-  'bacc':'bach','bahc':'bach','jsbach':'bach',
-  'vivald':'vivaldi','vivladi':'vivaldi','vivaldy':'vivaldi',
-  'debusy':'debussy','debssy':'debussy','clairdelune':'clair de lune',
-  'nocturn':'nocturne','noctrun':'nocturne','nocturne':'nocturne',
-  'sympony':'symphony','simphony':'symphony','symphny':'symphony',
-  'sonatta':'sonata','sonta':'sonata','moonlite':'moonlight','monlight':'moonlight',
-  'relaxng':'relaxing','relxing':'relaxing','meditaton':'meditation','meditaion':'meditation',
-  'hiphop':'hip hop','hip-hop':'hip hop','vaporwav':'vaporwave','beats':'beats','baets':'beats','beatz':'beats',
-  'violn':'violin','voilin':'violin','celo':'cello','chelo':'cello','flut':'flute','saxaphone':'saxophone','saxophon':'saxophone'
-};
-const KNOWN_MUSIC_VOCAB=Object.values(MUSIC_TYPO_MAP).concat([
-  'lofi','chill','beats','ambient','piano','synthwave','electronic','classical','orchestra',
-  'acoustic','guitar','jazz','instrumental','beethoven','mozart','chopin','bach','vivaldi',
-  'debussy','nocturne','symphony','sonata','moonlight','relaxing','meditation','violin',
-  'cello','flute','saxophone','drums','bass','vocal','folk','blues','rock','pop','cinematic',
-  'soundtrack','lullaby','prelude','concerto','waltz','etude','serenade','quartet','improvisation'
-]);
-
-function normalizeSearchText(str){
-  return String(str||'')
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .toLowerCase()
-    .replace(/['’`]/g,'')
-    .replace(/\((?:official|lyric|lyrics|audio|video|hd|hq|remastered|remaster|live|version|edit)[^)]*\)/gi,' ')
-    .replace(/\[(?:official|lyric|lyrics|audio|video|hd|hq|remastered|remaster|live|version|edit)[^\]]*\]/gi,' ')
-    .replace(/\b(?:feat|ft|featuring)\b\.?/gi,' ')
-    .replace(/[^a-z0-9\s-]/g,' ')
-    .replace(/[-_]+/g,' ')
-    .replace(/\s+/g,' ')
-    .trim();
-}
-
-function damerauLevenshtein(a,b){
-  const s=String(a||''),t=String(b||'');
-  const m=s.length,n=t.length;
-  if(!m)return n;
-  if(!n)return m;
-  if(s===t)return 0;
-  const dp=Array.from({length:m+1},()=>new Int16Array(n+1));
-  for(let i=0;i<=m;i++)dp[i][0]=i;
-  for(let j=0;j<=n;j++)dp[0][j]=j;
-  for(let i=1;i<=m;i++){
-    for(let j=1;j<=n;j++){
-      const cost=s[i-1]===t[j-1]?0:1;
-      let val=Math.min(dp[i-1][j]+1,dp[i][j-1]+1,dp[i-1][j-1]+cost);
-      if(i>1&&j>1&&s[i-1]===t[j-2]&&s[i-2]===t[j-1]){
-        val=Math.min(val,dp[i-2][j-2]+cost);
-      }
-      dp[i][j]=val;
-    }
-  }
-  return dp[m][n];
-}
-
-function diceSimilarity(a,b){
-  const s=String(a||'').replace(/\s+/g,''),t=String(b||'').replace(/\s+/g,'');
-  if(!s&&!t)return 1;
-  if(!s||!t)return 0;
-  if(s===t)return 1;
-  if(s.length<2||t.length<2)return s===t?1:0;
-  const bg=new Map();
-  for(let i=0;i<s.length-1;i++){
-    const k=s.slice(i,i+2);
-    bg.set(k,(bg.get(k)||0)+1);
-  }
-  let matches=0;
-  for(let i=0;i<t.length-1;i++){
-    const k=t.slice(i,i+2);
-    const c=bg.get(k)||0;
-    if(c>0){bg.set(k,c-1);matches++}
-  }
-  return (2*matches)/((s.length-1)+(t.length-1));
-}
-
-function repairTokenTypo(token){
-  if(!token||token.length<3)return token;
-  if(MUSIC_TYPO_MAP[token])return MUSIC_TYPO_MAP[token];
-  const collapsed=token.replace(/(.)\1{2,}/g,'$1');
-  if(MUSIC_TYPO_MAP[collapsed])return MUSIC_TYPO_MAP[collapsed];
-  if(KNOWN_MUSIC_VOCAB.includes(token))return token;
-  if(KNOWN_MUSIC_VOCAB.includes(collapsed))return collapsed;
-  const maxDist=token.length>=7?2:1;
-  let bestWord=token,bestDist=maxDist+1,bestDice=0;
-  for(let i=0;i<KNOWN_MUSIC_VOCAB.length;i++){
-    const v=KNOWN_MUSIC_VOCAB[i];
-    if(Math.abs(v.length-collapsed.length)>maxDist)continue;
-    const d=damerauLevenshtein(collapsed,v);
-    if(d<=maxDist){
-      const dc=diceSimilarity(collapsed,v);
-      if(d<bestDist||(d===bestDist&&dc>bestDice)){
-        bestDist=d;
-        bestDice=dc;
-        bestWord=v;
-      }
-    }
-  }
-  return bestWord;
-}
-
-function analyzeSearchQuery(rawQuery){
-  const raw=clean(rawQuery);
-  const norm=normalizeSearchText(raw);
-  let artistHint='',titleHint=norm;
-  if(raw.includes(' - ')){
-    const parts=raw.split(' - ').map(normalizeSearchText).filter(Boolean);
-    if(parts.length>=2){artistHint=parts[0];titleHint=parts.slice(1).join(' ')}
-  }else if(/\bby\b/i.test(raw)){
-    const parts=raw.split(/\bby\b/i).map(normalizeSearchText).filter(Boolean);
-    if(parts.length===2){titleHint=parts[0];artistHint=parts[1]}
-  }
-  const tokens=norm.split(' ').filter(Boolean);
-  const correctedTokens=tokens.map(repairTokenTypo);
-  const correctedQuery=correctedTokens.join(' ').trim();
-  const hasTypoCorrection=correctedQuery.length>0&&correctedQuery!==norm;
-
-  const variants=[];
-  const pushVar=(qStr,stageName)=>{
-    const c=clean(qStr);
-    if(c&&!variants.some(v=>v.q.toLowerCase()===c.toLowerCase())){
-      variants.push({q:c,stage:stageName});
-    }
-  };
-  pushVar(raw,'Exact search');
-  if(norm&&norm!==raw.toLowerCase())pushVar(norm,'Clean search');
-  if(hasTypoCorrection)pushVar(correctedQuery,'Spelling fix');
-  if(titleHint&&artistHint){
-    pushVar(`${titleHint} ${artistHint}`,'Song + Artist');
-    pushVar(titleHint,'Song title');
-    pushVar(artistHint,'Artist name');
-  }
-  const baseTokens=(hasTypoCorrection?correctedQuery:norm).split(' ').filter(w=>w.length>=2);
-  if(baseTokens.length>=3){
-    pushVar(baseTokens.slice(0,2).join(' '),'Main words');
-  }
-  return {
-    raw,
-    norm,
-    correctedQuery,
-    hasTypoCorrection,
-    artistHint,
-    titleHint,
-    tokens:baseTokens.length?baseTokens:tokens,
-    variants
-  };
-}
-
-function scoreCandidateTrack(item,qInfo){
-  const titleNorm=normalizeSearchText(item.title||'');
-  const artistNorm=normalizeSearchText(item.artist||'');
-  const combined=`${titleNorm} ${artistNorm}`.trim();
-  const targetQ=qInfo.hasTypoCorrection?qInfo.correctedQuery:qInfo.norm;
-  if(!targetQ)return {score:0.5,tier:'likely',badge:'GOOD MATCH'};
-
-  let phraseScore=0;
-  if(titleNorm===targetQ||combined===targetQ)phraseScore=1.0;
-  else if(titleNorm.includes(targetQ))phraseScore=0.92;
-  else if(combined.includes(targetQ))phraseScore=0.86;
-  else if(targetQ.includes(titleNorm)&&titleNorm.length>=4)phraseScore=0.78;
-
-  const qTokens=qInfo.tokens.length?qInfo.tokens:targetQ.split(' ').filter(Boolean);
-  const candTokens=combined.split(' ').filter(Boolean);
-  let tokenScoreSum=0;
-  for(const qt of qTokens){
-    let bestTok=0;
-    for(const ct of candTokens){
-      if(ct===qt){bestTok=1.0;break}
-      if(ct.startsWith(qt)||qt.startsWith(ct)){bestTok=Math.max(bestTok,0.88);continue}
-      const maxLen=Math.max(qt.length,ct.length);
-      if(maxLen>=3&&Math.abs(qt.length-ct.length)<=2){
-        const dist=damerauLevenshtein(qt,ct);
-        const sim=1-(dist/maxLen);
-        if(sim>=0.6)bestTok=Math.max(bestTok,sim*0.9);
-      }
-    }
-    tokenScoreSum+=bestTok;
-  }
-  const tokenCoverage=qTokens.length?tokenScoreSum/qTokens.length:0;
-
-  const diceTitle=diceSimilarity(targetQ,titleNorm);
-  const diceCombined=diceSimilarity(targetQ,combined);
-  const diceScore=Math.max(diceTitle,diceCombined*0.92);
-
-  let artistBonus=0;
-  if(qInfo.artistHint){
-    if(artistNorm.includes(qInfo.artistHint)||diceSimilarity(qInfo.artistHint,artistNorm)>0.65){
-      artistBonus=0.12;
-    }
-  }
-
-  let metaBonus=0;
-  if(item.url&&isVerifiedHttpsUrl(item.url))metaBonus+=0.05;
-  else if(item.archiveId)metaBonus+=0.03;
-  if(item.dur&&item.dur>=15)metaBonus+=0.03;
-  if(item.img)metaBonus+=0.02;
-
-  const rawScore=Math.max(phraseScore*0.92,tokenCoverage*0.68+diceScore*0.32)+artistBonus+metaBonus;
-  const finalScore=clamp(rawScore,0,1);
-
-  let tier='uncertain',badge='SIMILAR';
-  if(finalScore>=0.78){
-    tier='exact';
-    badge='BEST MATCH';
-  }else if(finalScore>=0.48){
-    tier='likely';
-    badge='GOOD MATCH';
-  }
-  return {score:finalScore,tier,badge};
-}
-
-function deduplicateAndRankCandidates(candidates,qInfo){
-  const byKey=new Map();
-  for(const item of candidates){
-    if(!item||(!item.url&&!item.archiveId))continue;
-    if(item.url&&!isBrowserSupportedAudioExt(item.url,item.mime))continue;
-    const rank=scoreCandidateTrack(item,qInfo);
-    item.matchScore=rank.score;
-    item.matchTier=rank.tier;
-    item.matchBadge=rank.badge;
-    const fp=getTrackFingerprint(item.title,item.artist);
-    let dedupKey=fp;
-    if(byKey.has(fp)){
-      const prev=byKey.get(fp);
-      if(prev.dur>0&&item.dur>0&&Math.abs(prev.dur-item.dur)>15){
-        dedupKey=`${fp}::${Math.round(item.dur/20)}`;
-      }
-    }
-    if(!byKey.has(dedupKey)){
-      item.altProviders=[];
-      byKey.set(dedupKey,item);
-    }else{
-      const existing=byKey.get(dedupKey);
-      const existingHasDirect=Boolean(existing.url);
-      const newHasDirect=Boolean(item.url);
-      if((newHasDirect&&!existingHasDirect)||(item.matchScore>existing.matchScore+0.05)){
-        item.altProviders=existing.altProviders||[];
-        if(existing.provider!==item.provider)item.altProviders.push(existing.provider.toUpperCase());
-        byKey.set(dedupKey,item);
-      }else if(existing.provider!==item.provider){
-        existing.altProviders=existing.altProviders||[];
-        if(!existing.altProviders.includes(item.provider.toUpperCase())){
-          existing.altProviders.push(item.provider.toUpperCase());
-        }
-      }
-    }
-  }
-  return [...byKey.values()].sort((a,b)=>(b.matchScore||0)-(a.matchScore||0));
-}
-
-function updateOfflineSearchBanner(){
-  const isOffline=navigator.onLine===false;
-  if(isOffline){
-    onlineDot.classList.remove('on');
-    onlineDot.classList.add('warn');
-    onlineStatusTxt.textContent='No Internet · Your Saved Songs Still Work';
-  }else{
-    onlineDot.classList.remove('warn');
-    onlineDot.classList.toggle('on',onlineEnabled);
-    onlineStatusTxt.textContent=onlineEnabled
-      ?`Online Search On · Source: ${PROVIDER_META[hubMode].label}`
-      :'Online Search Off';
-  }
-}
 
 function updateOnlineControlsState(){
   const controls=[
@@ -5249,19 +4041,19 @@ function updateOnlineControlsState(){
   onlineZone.setAttribute('aria-disabled',String(!onlineEnabled));
   onlineToggleBtn.classList.toggle('on',onlineEnabled);
   onlineToggleBtn.setAttribute('aria-checked',String(onlineEnabled));
-  onlineToggleBtn.textContent=onlineEnabled?'Turn Off Online Search':'Enable Online Music Search';
-  updateOfflineSearchBanner();
+  onlineToggleBtn.textContent=onlineEnabled?'Disable Online Music Search':'Enable Online Music Search';
+  onlineDot.classList.toggle('on',onlineEnabled);
+  onlineStatusTxt.textContent=onlineEnabled
+    ?`Online Search Enabled · Active Source: ${PROVIDER_META[hubMode].label}`
+    :'Online Search Disabled (Local-Only Mode)';
   $('#hubQ').placeholder=onlineEnabled
     ?PROVIDER_META[hubMode].placeholder
-    :'Turn on online search above...';
+    :'Enable online search above to search direct streams...';
   if(!onlineEnabled){
     if(activeSearchController){activeSearchController.abort();activeSearchController=null}
-    clearTimeout(searchDebounceTimer);
     $('#hubQ').value='';
-    if(hubMetaBar)hubMetaBar.hidden=true;
-    $('#hubList').replaceChildren(el('div','empty','Online search is off. Turn on "Enable Online Music Search" above to find and play songs.'));
+    $('#hubList').replaceChildren(el('div','empty','Online search is disabled. Toggle "Enable Online Music Search" above when you want to stream tracks progressively through the 3D & 15-Band EQ engine.'));
   }else if(!$('#hubQ').value.trim()){
-    if(hubMetaBar)hubMetaBar.hidden=true;
     renderProviderIdleState();
   }
 }
@@ -5270,13 +4062,13 @@ function renderProviderIdleState(){
   const box=$('#hubList');
   box.replaceChildren();
   if(hubMode==='all'){
-    box.append(el('div','empty','Type any song or artist name above (or tap a quick tag) to search across all open music sources.'));
+    box.append(el('div','empty','All Open Direct Sources active: Search or tap a quick tag to stream tracks from Audius HQ, Creative Commons Internet Archive, and Wikimedia Commons Free Audio.'));
   }else if(hubMode==='audius'){
-    box.append(el('div','empty','Audius selected: Search or tap a tag to play songs from independent artists.'));
+    box.append(el('div','empty','Audius HQ selected: Search or tap a tag to stream full-length artist-published tracks progressively through the 15-Band EQ & 3D engine.'));
   }else if(hubMode==='archive'){
-    box.append(el('div','empty','Internet Archive selected: Search free Creative Commons and Public Domain music.'));
+    box.append(el('div','empty','Internet Archive (CC / Public Domain) selected: Queries Creative Commons and Public Domain audio items for progressive streaming.'));
   }else if(hubMode==='commons'){
-    box.append(el('div','empty','Wikimedia Commons selected: Search free Public Domain and open-licensed audio.'));
+    box.append(el('div','empty','Wikimedia Commons selected: Public Domain & Creative Commons licensed audio files with per-track license badges.'));
   }
 }
 
@@ -5302,19 +4094,19 @@ onlineToggleBtn.onclick=()=>{
   if(onlineEnabled){
     onlineEnabled=false;
     updateOnlineControlsState();
-    toast('Online search turned off');
+    toast('Online music search disabled');
     return;
   }
   if(!warningAcknowledged){
     requestWarningAcknowledgement(()=>{
       onlineEnabled=true;
       updateOnlineControlsState();
-      toast('Online search turned on');
+      toast('Online music search enabled');
     });
   }else{
     onlineEnabled=true;
     updateOnlineControlsState();
-    toast('Online search turned on');
+    toast('Online music search enabled');
   }
 };
 
@@ -5324,7 +4116,7 @@ $('#reviewWarnBtn').onclick=()=>{
       onlineEnabled=true;
       updateOnlineControlsState();
     }
-    toast('Online search ready');
+    toast('Notice acknowledged');
   });
 };
 
@@ -5336,52 +4128,34 @@ $$('#hubSrcTabs button').forEach(b=>b.onclick=()=>{
     x.setAttribute('aria-selected',String(active));
   });
   hubMode=b.dataset.src;
-  updateOfflineSearchBanner();
+  onlineStatusTxt.textContent=`Online Search Enabled · Active Source: ${PROVIDER_META[hubMode].label}`;
   $('#hubQ').placeholder=PROVIDER_META[hubMode].placeholder;
-  if($('#hubQ').value.trim())searchHub({immediate:true});
+  if($('#hubQ').value.trim())searchHub();
   else renderProviderIdleState();
 });
 
 $$('#quickTags .chip').forEach(c=>c.onclick=()=>{
   if(!onlineEnabled)return;
   $('#hubQ').value=c.dataset.q;
-  searchHub({immediate:true});
+  searchHub();
 });
 
 function registerHubTrack(t,makePersistent=false){
   const id=`${t.provider}|${t.id}`;
-  const fp=getTrackFingerprint(t.title,t.artist);
-  if(makePersistent){
-    const dup=findDuplicateLibraryTrack({id,name:t.title,folder:t.artist,fingerprint:fp});
-    if(dup){
-      if(!dup.remoteUrl&&t.url)dup.remoteUrl=t.url;
-      if(!dup.art&&t.img)dup.art=t.img;
-      if(!dup.dur&&t.dur)dup.dur=+t.dur;
-      idb('tracks','readwrite',s=>s.put(dup)).catch(()=>{});
-      chips();
-      renderLib();
-      return dup.id;
-    }
-  }
   let m=S.lib.get(id);
   if(!m){
     m={
       id,
-      name:clean(t.title||'Untitled Song'),
+      name:clean(t.title||'Untitled Track'),
       ext:clean(t.ext||'mp3').toLowerCase().slice(0,6),
       mime:t.mime||'',
-      providerLabel:clean(t.src||'ONLINE'),
+      providerLabel:clean(t.src||'DIRECT'),
       license:clean(t.license||''),
       size:0,
       dur:+t.dur||0,
       folder:clean(t.artist||'Unknown Artist'),
-      fingerprint:fp,
       liked:false,
       added:Date.now(),
-      playCount:0,
-      completedCount:0,
-      lastPlayedAt:0,
-      lastPos:0,
       remoteUrl:t.url||'',
       archiveId:t.archiveId||'',
       externalUrl:t.externalUrl||'',
@@ -5393,8 +4167,8 @@ function registerHubTrack(t,makePersistent=false){
   }else if(makePersistent&&m.ephemeral){
     m.ephemeral=false;
   }
-  idb('tracks','readwrite',s=>s.put(m)).catch(()=>{});
   if(makePersistent){
+    idb('tracks','readwrite',s=>s.put(m)).catch(()=>{});
     chips();
     renderLib();
   }
@@ -5403,7 +4177,7 @@ function registerHubTrack(t,makePersistent=false){
 
 async function playHubNow(t){
   if(!t.url&&!t.archiveId){
-    return toast('This song link is unavailable');
+    return toast('Stream URL is unavailable for this track');
   }
   engine();
   if(ctx&&ctx.state!=='running')ctx.resume().catch(()=>{});
@@ -5421,18 +4195,7 @@ function queueHubTrack(t){
   enqueue([id],false);
 }
 
-function createLinkedTimeoutSignal(parentSignal,timeoutMs){
-  const ctrl=new AbortController();
-  const tm=setTimeout(()=>ctrl.abort(),timeoutMs);
-  if(parentSignal){
-    if(parentSignal.aborted)ctrl.abort();
-    else parentSignal.addEventListener('abort',()=>ctrl.abort(),{once:true});
-  }
-  return {signal:ctrl.signal,cleanup:()=>clearTimeout(tm)};
-}
-
-async function searchAudius(q,parentSignal){
-  const {signal,cleanup}=createLinkedTimeoutSignal(parentSignal,5200);
+async function searchAudius(q,signal){
   try{
     const hosts=await getAudiusHosts();
     for(let hIdx=0;hIdx<Math.min(2,hosts.length);hIdx++){
@@ -5446,14 +4209,15 @@ async function searchAudius(q,parentSignal){
         });
         if(!r.ok)continue;
         const j=await r.json();
-        const items=(j?.data||[]).filter(t=>t&&t.id&&t.is_streamable!==false&&(!t.duration||t.duration>=10)).slice(0,16);
+        const items=(j?.data||[]).filter(t=>t&&t.id&&t.is_streamable!==false&&(!t.duration||t.duration>=12)).slice(0,14);
         return items.map(t=>{
           const artUrl=t.artwork?.['480x480']||t.artwork?.['150x150']||'';
           const permalink=t.permalink?`https://audius.co${String(t.permalink).startsWith('/')?'':'/'}${t.permalink}`:'https://audius.co';
+          const isCc=Boolean(t.is_downloadable||String(t.license||'').toLowerCase().includes('creative commons')||String(t.license||'').toLowerCase().includes('cc'));
           return {
             provider:'audius',
             id:String(t.id),
-            title:clean(t.title||'Song'),
+            title:clean(t.title||'Track'),
             artist:clean(t.user?.name||'Artist'),
             url:`${host}/v1/tracks/${encodeURIComponent(t.id)}/stream?app_name=AudioImmersiver`,
             externalUrl:isVerifiedProviderUrl(permalink,'audius')?permalink:'https://audius.co',
@@ -5462,22 +4226,21 @@ async function searchAudius(q,parentSignal){
             ext:'mp3',
             license:clean(t.license||'Artist Stream'),
             downloadEligible:true,
-            verifiedPlayable:true,
-            src:'AUDIUS'
+            src:isCc?'AUDIUS · CC':'AUDIUS HQ'
           };
         });
       }catch(e){
-        if(parentSignal&&parentSignal.aborted)throw e;
+        if(e&&e.name==='AbortError')throw e;
       }
     }
     return [];
-  }finally{
-    cleanup();
+  }catch(e){
+    if(e&&e.name==='AbortError')throw e;
+    return [];
   }
 }
 
-async function searchWikimediaCommons(q,parentSignal){
-  const {signal,cleanup}=createLinkedTimeoutSignal(parentSignal,5200);
+async function searchWikimediaCommons(q,signal){
   try{
     const api=`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent('filetype:audio '+q)}&gsrnamespace=6&gsrlimit=16&prop=imageinfo&iiprop=url|extmetadata|size|mime|dimensions&format=json&origin=*`;
     const r=await fetch(api,{signal,credentials:'omit',referrerPolicy:'no-referrer'});
@@ -5489,7 +4252,7 @@ async function searchWikimediaCommons(q,parentSignal){
       const extMeta=ii.extmetadata||{};
       const rawTitle=String(p.title||'').replace(/^File:/i,'').replace(/\.[^.]+$/,'').replace(/_/g,' ');
       const rawAuthor=String(extMeta.Artist?.value||extMeta.Credit?.value||'Wikimedia Commons').replace(/<[^>]*>/g,'');
-      const lic=clean(extMeta.LicenseShortName?.value||'Free Audio').toUpperCase();
+      const lic=clean(extMeta.LicenseShortName?.value||'CC / Public Domain').toUpperCase();
       const fileExt=((String(ii.url||'').match(/\.([a-z0-9]{2,5})(?:$|\?)/i)||[])[1]||'ogg').toLowerCase();
       const pageUrl=p.title?`https://commons.wikimedia.org/wiki/${encodeURIComponent(p.title)}`:'https://commons.wikimedia.org';
       return {
@@ -5505,20 +4268,16 @@ async function searchWikimediaCommons(q,parentSignal){
         mime:ii.mime||'',
         license:lic,
         downloadEligible:true,
-        verifiedPlayable:true,
-        src:'COMMONS'
+        src:`COMMONS · ${lic.slice(0,14)}`
       };
     }).filter(x=>x.url&&isVerifiedProviderUrl(x.url,'commons')&&/\.(ogg|oga|opus|mp3|flac|wav|m4a)$/i.test(x.url)&&isBrowserSupportedAudioExt(x.url,x.mime));
   }catch(e){
-    if(parentSignal&&parentSignal.aborted)throw e;
+    if(e&&e.name==='AbortError')throw e;
     return [];
-  }finally{
-    cleanup();
   }
 }
 
-async function searchInternetArchive(q,parentSignal){
-  const {signal,cleanup}=createLinkedTimeoutSignal(parentSignal,5800);
+async function searchInternetArchive(q,signal){
   try{
     const safeTerms=q.replace(/[+\-&|!(){}[\]^"~*?:\\/]/g,' ').trim();
     if(!safeTerms)return [];
@@ -5537,7 +4296,7 @@ async function searchInternetArchive(q,parentSignal){
         id:idStr,
         archiveId:idStr,
         title:clean(Array.isArray(d.title)?d.title[0]:d.title||idStr),
-        artist:clean(Array.isArray(d.creator)?d.creator[0]:d.creator||'Internet Archive'),
+        artist:clean(Array.isArray(d.creator)?d.creator[0]:d.creator||'Internet Archive CC'),
         url:'',
         externalUrl:`https://archive.org/details/${encodeURIComponent(idStr)}`,
         img:`https://archive.org/services/img/${encodeURIComponent(idStr)}`,
@@ -5545,379 +4304,151 @@ async function searchInternetArchive(q,parentSignal){
         ext:'mp3',
         license:licShort,
         downloadEligible:true,
-        verifiedPlayable:false,
-        src:'ARCHIVE'
+        src:`ARCHIVE · ${licShort==='Public Domain'?'PD':'CC'}`
       };
     });
   }catch(e){
-    if(parentSignal&&parentSignal.aborted)throw e;
+    if(e&&e.name==='AbortError')throw e;
     return [];
-  }finally{
-    cleanup();
   }
 }
 
-async function queryProvidersForStage(qStr,providers,signal){
-  const tasks=providers.map(p=>{
-    if(p==='audius')return searchAudius(qStr,signal);
-    if(p==='commons')return searchWikimediaCommons(qStr,signal);
-    if(p==='archive')return searchInternetArchive(qStr,signal);
-    return Promise.resolve([]);
-  });
-  const settled=await Promise.allSettled(tasks);
-  const combined=[];
-  settled.forEach(s=>{
-    if(s.status==='fulfilled'&&Array.isArray(s.value)){
-      combined.push(...s.value);
-    }
-  });
-  return combined;
-}
-
-async function verifyTopCandidatesPlayable(rankedList,signal){
-  const topArchive=rankedList.filter(t=>t.provider==='archive'&&!t.url&&t.archiveId).slice(0,3);
-  if(!topArchive.length)return rankedList;
-  await Promise.allSettled(topArchive.map(async item=>{
-    const info=await resolveArchiveTrackInfo(item.archiveId,signal).catch(()=>null);
-    if(info&&info.url){
-      item.url=info.url;
-      if(info.dur)item.dur=info.dur;
-      if(info.ext)item.ext=info.ext;
-      item.verifiedPlayable=true;
-    }else{
-      item._unplayable=true;
-    }
-  }));
-  return rankedList.filter(t=>!t._unplayable);
-}
-
-function renderHubResults(results,metaInfo){
-  const box=$('#hubList');
-  box.replaceChildren();
-  if(hubMetaBar){
-    if(metaInfo&&metaInfo.summary){
-      hubMetaBar.hidden=false;
-      hubMetaBar.replaceChildren();
-      const leftSpan=el('span','',metaInfo.summary);
-      hubMetaBar.append(leftSpan);
-      if(metaInfo.correctedFrom){
-        const tag=el('span','badge likely',`Matched: "${metaInfo.correctedQuery}"`);
-        hubMetaBar.append(tag);
-      }
-      if(metaInfo.usedFallbackProvider){
-        const fbTag=el('span','badge uncertain','Other Sources');
-        hubMetaBar.append(fbTag);
-      }
-    }else{
-      hubMetaBar.hidden=true;
-    }
-  }
-  const fr=document.createDocumentFragment();
-  results.forEach(t=>{
-    const r=el('div','item');
-    if(t.img){
-      const im=el('img','thumb');
-      im.src=t.img;
-      im.alt='';
-      im.loading='lazy';
-      im.decoding='async';
-      im.referrerPolicy='no-referrer';
-      im.onerror=()=>{im.remove()};
-      r.append(im);
-    }
-    const m=el('div','meta');
-    const durTxt=t.dur?` · ${fmt(t.dur)}`:'';
-    const altTxt=t.altProviders&&t.altProviders.length?` · +${t.altProviders.join('/')}`:'';
-    const sub=el('small','');
-    const bdg=el('span','badge',t.src);
-    const tierBdg=el('span',`badge ${t.matchTier||'likely'}`,t.matchBadge||'MATCH');
-    sub.append(bdg,tierBdg,document.createTextNode(`${t.artist}${durTxt}${altTxt}`));
-    m.append(el('b','',t.title),sub);
-    r.append(m);
-    r.onclick=()=>playHubNow(t);
-    const savedTrack=S.lib.get(`${t.provider}|${t.id}`);
-    r.append(ib('heart',savedTrack?.liked?'Unlike':'Like',b=>{
-      const id=registerHubTrack(t,true);
-      const trk=S.lib.get(id);
-      if(trk)toggleTrackFavorite(trk,b);
-    },Boolean(savedTrack?.liked)));
-    r.append(ib('plus','Add to Queue',()=>queueHubTrack(t)));
-    r.append(ib('save','Save to Library',()=>{
-      registerHubTrack(t,true);
-      toast(`Saved "${t.title}" to Library`);
-    }));
-    if(t.externalUrl&&isVerifiedHttpsUrl(t.externalUrl)){
-      r.append(ib('link','Open song page',()=>window.open(t.externalUrl,'_blank','noopener,noreferrer')));
-    }
-    fr.append(r);
-  });
-  box.append(fr);
-}
-
-async function searchHub(opts={}){
-  clearTimeout(searchDebounceTimer);
-  if(!onlineEnabled)return toast('Turn on Online Music Search first');
-  if(navigator.onLine===false){
-    const box=$('#hubList');
-    box.replaceChildren(el('div','empty','You are offline right now. Your saved songs still work, and online search will work again once you are connected.'));
-    return;
-  }
-  const rawQ=clean($('#hubQ').value);
-  if(!rawQ){
-    if(hubMetaBar)hubMetaBar.hidden=true;
-    renderProviderIdleState();
-    return;
-  }
-
-  const cacheKey=`${hubMode}::${rawQ.toLowerCase()}`;
-  const cached=SEARCH_CACHE.get(cacheKey);
-  if(!opts.force&&cached&&(Date.now()-cached.ts<300000)&&cached.items.length){
-    renderHubResults(cached.items,cached.meta);
-    return;
-  }
-
+async function searchHub(){
+  if(!onlineEnabled)return toast('Enable Online Music Search first');
+  const q=clean($('#hubQ').value);
+  if(!q)return toast('Enter a song, artist, or genre query first');
   const box=$('#hubList');
   if(activeSearchController)activeSearchController.abort();
   const controller=activeSearchController=new AbortController();
   const mySeq=++searchSeq;
-  const qInfo=analyzeSearchQuery(rawQ);
-  const primaryProviders=hubMode==='all'?['audius','commons','archive']:[hubMode];
-  const allFallbackProviders=['audius','commons','archive'].filter(p=>!primaryProviders.includes(p));
-
-  if(hubMetaBar){
-    hubMetaBar.hidden=false;
-    hubMetaBar.textContent=`Searching for "${rawQ}"...`;
-  }
-  box.replaceChildren(el('div','empty',`Searching for "${rawQ}"...`));
-
-  const collected=[];
-  let usedStage='Exact search';
-  let usedFallbackProvider=false;
+  const timeoutId=setTimeout(()=>controller.abort(),9500);
+  box.replaceChildren(el('div','empty',`Searching ${PROVIDER_META[hubMode].label} for "${q}"...`));
 
   try{
-    for(let vIdx=0;vIdx<qInfo.variants.length;vIdx++){
-      const variant=qInfo.variants[vIdx];
-      if(mySeq!==searchSeq)return;
-      if(vIdx>0&&hubMetaBar){
-        hubMetaBar.textContent=`Trying "${variant.q}"...`;
-      }
-      const batch=await queryProvidersForStage(variant.q,primaryProviders,controller.signal);
-      if(mySeq!==searchSeq)return;
-      if(batch.length){
-        collected.push(...batch);
-        usedStage=variant.stage;
-        const rankedSoFar=deduplicateAndRankCandidates(collected,qInfo);
-        if(rankedSoFar.length){
-          renderHubResults(rankedSoFar.slice(0,24),{
-            summary:`Found ${rankedSoFar.length} song(s)...`,
-            correctedFrom:qInfo.hasTypoCorrection?rawQ:'',
-            correctedQuery:qInfo.correctedQuery,
-            usedFallbackProvider:false
-          });
-        }
-        const exactCount=rankedSoFar.filter(x=>x.matchTier==='exact').length;
-        if(exactCount>=3||rankedSoFar.length>=8)break;
-      }
-    }
-
-    if(!collected.length&&allFallbackProviders.length){
-      if(mySeq!==searchSeq)return;
-      usedFallbackProvider=true;
-      const bestQuery=qInfo.hasTypoCorrection?qInfo.correctedQuery:qInfo.norm||rawQ;
-      if(hubMetaBar){
-        hubMetaBar.textContent=`Checking other music sources...`;
-      }
-      const fbBatch=await queryProvidersForStage(bestQuery,allFallbackProviders,controller.signal);
-      if(mySeq!==searchSeq)return;
-      if(fbBatch.length){
-        collected.push(...fbBatch);
-      }else if(qInfo.variants.length>1){
-        const fbBatch2=await queryProvidersForStage(qInfo.variants[qInfo.variants.length-1].q,allFallbackProviders,controller.signal);
-        if(mySeq!==searchSeq)return;
-        collected.push(...fbBatch2);
+    let results=[];
+    if(hubMode==='audius'){
+      results=await searchAudius(q,controller.signal);
+    }else if(hubMode==='archive'){
+      results=await searchInternetArchive(q,controller.signal);
+    }else if(hubMode==='commons'){
+      results=await searchWikimediaCommons(q,controller.signal);
+    }else{
+      const settled=await Promise.allSettled([
+        searchAudius(q,controller.signal),
+        searchWikimediaCommons(q,controller.signal),
+        searchInternetArchive(q,controller.signal)
+      ]);
+      const au=settled[0].status==='fulfilled'?settled[0].value:[];
+      const cm=settled[1].status==='fulfilled'?settled[1].value:[];
+      const ar=settled[2].status==='fulfilled'?settled[2].value:[];
+      const maxLen=Math.max(au.length,cm.length,ar.length);
+      for(let i=0;i<maxLen;i++){
+        if(au[i])results.push(au[i]);
+        if(ar[i])results.push(ar[i]);
+        if(cm[i])results.push(cm[i]);
       }
     }
-
-    let finalRanked=deduplicateAndRankCandidates(collected,qInfo);
-    finalRanked=await verifyTopCandidatesPlayable(finalRanked,controller.signal);
+    clearTimeout(timeoutId);
     if(mySeq!==searchSeq)return;
-
-    if(!finalRanked.length){
-      if(hubMetaBar)hubMetaBar.hidden=true;
-      const emptyBox=el('div','empty',`No songs found for "${rawQ}"${qInfo.hasTypoCorrection?` (or "${qInfo.correctedQuery}")`:''}. Try another song name, artist, or quick tag.`);
-      const actRow=el('div','empty-actions');
-      const retryBtn=el('button','chip','Try Again');
-      retryBtn.type='button';
-      retryBtn.onclick=()=>searchHub({force:true,immediate:true});
-      actRow.append(retryBtn);
-      if(hubMode!=='all'){
-        const allBtn=el('button','chip on','Search All Sources');
-        allBtn.type='button';
-        allBtn.onclick=()=>$('#tabAll').click();
-        actRow.append(allBtn);
-      }
-      emptyBox.append(actRow);
-      box.replaceChildren(emptyBox);
+    box.replaceChildren();
+    if(!results.length){
+      box.append(el('div','empty',`No playable open streams found on ${PROVIDER_META[hubMode].label} for "${q}". Try another keyword or switch to All Open.`));
       return;
     }
-
-    const finalItems=finalRanked.slice(0,28);
-    const exactTotal=finalItems.filter(x=>x.matchTier==='exact').length;
-    const summaryTxt=usedFallbackProvider
-      ?`Found ${finalItems.length} song(s) from other sources`
-      :`Found ${finalItems.length} song(s) (${exactTotal} best match${exactTotal===1?'':'es'})`;
-    const metaObj={
-      summary:summaryTxt,
-      Stage:usedStage,
-      correctedFrom:qInfo.hasTypoCorrection?rawQ:'',
-      correctedQuery:qInfo.correctedQuery,
-      usedFallbackProvider
-    };
-
-    if(SEARCH_CACHE.size>=30)SEARCH_CACHE.delete(SEARCH_CACHE.keys().next().value);
-    SEARCH_CACHE.set(cacheKey,{ts:Date.now(),items:finalItems,meta:metaObj});
-    renderHubResults(finalItems,metaObj);
+    const fr=document.createDocumentFragment();
+    results.forEach(t=>{
+      const r=el('div','item');
+      if(t.img){
+        const im=el('img','thumb');
+        im.src=t.img;
+        im.alt='';
+        im.loading='lazy';
+        im.decoding='async';
+        im.referrerPolicy='no-referrer';
+        im.onerror=()=>{im.remove()};
+        r.append(im);
+      }
+      const m=el('div','meta');
+      const durTxt=t.dur?` · ${fmt(t.dur)}`:'';
+      const sub=el('small','');
+      const bdg=el('span','badge',t.src);
+      sub.append(bdg,document.createTextNode(`${t.artist}${durTxt}`));
+      m.append(el('b','',t.title),sub);
+      r.append(m);
+      r.onclick=()=>playHubNow(t);
+      r.append(ib('plus','Add to Queue',()=>queueHubTrack(t)));
+      r.append(ib('save','Save to Library',()=>{
+        registerHubTrack(t,true);
+        toast(`Saved "${t.title}" to Library`);
+      }));
+      if(t.externalUrl&&isVerifiedHttpsUrl(t.externalUrl)){
+        r.append(ib('link','Open source & license page',()=>window.open(t.externalUrl,'_blank','noopener,noreferrer')));
+      }
+      fr.append(r);
+    });
+    box.append(fr);
   }catch(err){
+    clearTimeout(timeoutId);
     if(mySeq!==searchSeq)return;
-    if(err&&err.name==='AbortError'&&activeSearchController!==controller)return;
-    if(hubMetaBar)hubMetaBar.hidden=true;
-    const errBox=el('div','empty',`Could not finish searching right now. Please check your connection and try again.`);
-    const actRow=el('div','empty-actions');
-    const retryBtn=el('button','chip on','Try Again');
-    retryBtn.type='button';
-    retryBtn.onclick=()=>searchHub({force:true,immediate:true});
-    actRow.append(retryBtn);
-    errBox.append(actRow);
-    box.replaceChildren(errBox);
+    if(err&&err.name==='AbortError'){
+      box.replaceChildren(el('div','empty',`Search timed out on ${PROVIDER_META[hubMode].label}. Please check your connection and try again.`));
+      return;
+    }
+    box.replaceChildren(el('div','empty',`Could not reach ${PROVIDER_META[hubMode].label} right now. Please try again.`));
   }
 }
 
-$('#hubBtn').onclick=()=>searchHub({immediate:true});
-$('#hubQ').onkeydown=e=>{
-  if(e.key==='Enter'){
-    clearTimeout(searchDebounceTimer);
-    searchHub({immediate:true});
-  }
-};
-$('#hubQ').oninput=()=>{
-  clearTimeout(searchDebounceTimer);
-  if(!onlineEnabled)return;
-  const val=$('#hubQ').value.trim();
-  if(!val){
-    if(activeSearchController){activeSearchController.abort();activeSearchController=null}
-    if(hubMetaBar)hubMetaBar.hidden=true;
-    renderProviderIdleState();
-    return;
-  }
-  if(val.length>=2){
-    searchDebounceTimer=setTimeout(()=>searchHub({immediate:false}),420);
-  }
-};
+$('#hubBtn').onclick=searchHub;
+$('#hubQ').onkeydown=e=>{if(e.key==='Enter')searchHub()};
 
 applyThemeNow(true);
 updatePresetUI();
-syncSwitchUI();
 Object.keys(fxIn).forEach(k=>{if(k==='speed')applyOne(k)});
 updateOnlineControlsState();
 ui();
 
 (async()=>{
-  let sessionSnap=null;
   try{
-    const rawTracks=(await idb('tracks','readonly',s=>s.getAll()))||[];
-    const blobKeys=new Set((await idb('blobs','readonly',s=>s.getAllKeys()))||[]);
-    rawTracks.forEach(m=>{
+    ((await idb('tracks','readonly',s=>s.getAll()))||[]).forEach(m=>{
       if(m&&typeof m.id==='string'&&!m.ytId){
         const validRemote=m.remoteUrl&&isVerifiedHttpsUrl(m.remoteUrl)?m.remoteUrl:'';
-        const isLocal=!validRemote&&!m.archiveId;
-        const hasBlob=blobKeys.has(m.id);
-        const nameStr=clean(m.name||'Untitled');
-        const folderStr=clean(m.folder||'My Music');
         S.lib.set(m.id,{
           id:m.id,
-          name:nameStr,
+          name:clean(m.name||'Untitled'),
           ext:String(m.ext||'audio').slice(0,6),
           mime:String(m.mime||''),
-          providerLabel:clean(m.providerLabel||(validRemote?'ONLINE':'DEVICE')),
+          providerLabel:clean(m.providerLabel||(validRemote?'ONLINE':'LOCAL')),
           license:clean(m.license||''),
           size:+m.size||0,
           dur:+m.dur||0,
-          folder:folderStr,
-          fingerprint:m.fingerprint||getTrackFingerprint(nameStr,folderStr),
+          folder:clean(m.folder||'Local Audio'),
           liked:!!m.liked,
           added:+m.added||0,
-          playCount:+m.playCount||0,
-          completedCount:+m.completedCount||0,
-          lastPlayedAt:+m.lastPlayedAt||0,
-          lastPos:+m.lastPos||0,
           remoteUrl:validRemote,
           archiveId:clean(m.archiveId||''),
           externalUrl:m.externalUrl&&isVerifiedHttpsUrl(m.externalUrl)?m.externalUrl:'',
           downloadEligible:m.downloadEligible!==false,
           art:m.art&&isVerifiedHttpsUrl(m.art)?m.art:'',
-          ephemeral:Boolean(m.ephemeral),
-          localMissing:Boolean(isLocal&&!hasBlob)
+          ephemeral:false
         });
       }
     });
-
-    let pl=await kvGet('pl');
-    if(!pl){
-      try{pl=JSON.parse(localStorage.getItem('rp3_pl'))}catch(_){}
-    }
+    const pl=await kvGet('pl');
     if(pl&&typeof pl==='object'){
       Object.entries(pl).forEach(([k,v])=>{
         if(Array.isArray(v))S.pl[clean(k)]=v.filter(i=>typeof i==='string'&&S.lib.has(i));
       });
     }
-
-    let rec=await kvGet('recent');
-    if(!Array.isArray(rec)){
-      try{rec=JSON.parse(localStorage.getItem('rp3_recent'))}catch(_){}
-    }
-    if(Array.isArray(rec)){
-      S.recent=rec.filter(r=>r&&typeof r.id==='string'&&S.lib.has(r.id)).slice(0,100);
-    }
-
-    const idbQ=await kvGet('q');
-    let lsQ=null;
-    try{lsQ=JSON.parse(localStorage.getItem('rp3_session'))}catch(_){}
-    if(idbQ&&lsQ){
-      sessionSnap=(+lsQ.updatedAt||0)>=(+idbQ.updatedAt||0)?lsQ:idbQ;
-    }else{
-      sessionSnap=lsQ||idbQ;
-    }
-
-    if(sessionSnap&&Array.isArray(sessionSnap.ids)){
-      S.queue=sessionSnap.ids.filter(i=>S.lib.has(i));
-      if(sessionSnap.currentId&&S.queue.includes(sessionSnap.currentId)){
-        S.pos=S.queue.indexOf(sessionSnap.currentId);
-      }else if(Number.isInteger(sessionSnap.pos)&&sessionSnap.pos>=0&&sessionSnap.pos<S.queue.length){
-        S.pos=sessionSnap.pos;
-      }else{
-        S.pos=S.queue.length?0:-1;
-      }
-      if(typeof sessionSnap.shuffle==='boolean')S.shuffle=sessionSnap.shuffle;
-      if(['off','all','one'].includes(sessionSnap.repeat))S.repeat=sessionSnap.repeat;
-      if(sessionSnap.filter&&typeof sessionSnap.filter.k==='string')S.filter=sessionSnap.filter;
+    const q=await kvGet('q');
+    if(q&&Array.isArray(q.ids)){
+      S.queue=q.ids.filter(i=>S.lib.has(i));
+      S.pos=Number.isInteger(q.pos)&&q.pos>=0&&q.pos<S.queue.length?q.pos:S.queue.length?0:-1;
     }
   }catch(_){}
-
-  syncSwitchUI();
   chips();
   renderLib();
   renderQ();
-  updateStorageStatsUI();
-
-  if(S.queue.length){
-    const targetIdx=S.pos<0?0:S.pos;
-    const targetTrack=S.lib.get(S.queue[targetIdx]);
-    const savedSeek=Number.isFinite(+sessionSnap?.position)&&+sessionSnap.position>0
-      ?+sessionSnap.position
-      :(+targetTrack?.lastPos||0);
-    const wasPlaying=Boolean(sessionSnap?.wasPlaying);
-    playIndex(targetIdx,{auto:false,seek:savedSeek,wasPlaying});
-  }
+  if(S.queue.length)playIndex(S.pos<0?0:S.pos,{auto:false});
 })();
 </script>
 </body>

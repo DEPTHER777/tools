@@ -1080,6 +1080,34 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001s!important;transition-duration:.001s!important;filter:none!important}
 }
+
+#offlineSearch {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--tx);
+}
+
+#offlineSearch[hidden] {
+  display: none !important;
+}
+
+#offlineSearch svg {
+  width: 120px;
+  height: 100px;
+  margin: 0 auto 12px;
+}
+
+#offlineSearch h3 {
+  color: var(--ac);
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+#offlineSearch p {
+  font-size: 12px;
+  line-height: 1.6;
+  opacity: 0.8;
+}
 </style>
 </head>
 <body>
@@ -1224,6 +1252,22 @@ button:focus-visible,.item:focus-visible,.disc:focus-visible,a:focus-visible,inp
 <input class="field" id="hubQ" type="search" maxlength="100" placeholder="Search songs, artists, or genres..." autocomplete="off" disabled aria-label="Search online tracks">
 <button class="ib" type="button" id="hubBtn" style="width:auto;padding:0 16px;color:var(--ac);font-weight:800" disabled>Search</button>
 </div>
+
+
+<div id="offlineSearch" hidden style="text-align:center;padding:24px 12px">
+<svg viewBox="0 0 120 100" width="120" height="100"
+       xmlns="http://www.w3.org/2000/svg" fill="none"
+       aria-hidden="true" style="margin:0 auto 12px">
+<path d="M15 30 Q60 -5 105 30 M27 44 Q60 17 93 44 M42 58 Q60 43 78 58"
+          stroke="#ff6b81" stroke-width="5" stroke-linecap="round"/>
+<circle cx="60" cy="72" r="5" fill="#ff6b81"/>
+<path d="M20 10 L100 90" stroke="#ff6b81"
+          stroke-width="5" stroke-linecap="round"/>
+</svg>
+<h3>Oops! We disconnected.</h3>
+<p>You're offline. Please check your internet connection and try again.</p>
+</div>
+
 
 <div class="scrollx" id="quickTags">
 <button class="chip" type="button" data-q="Lofi Chill Beats" disabled>Lofi Beats</button>
@@ -5024,10 +5068,43 @@ hubListEl.addEventListener('click',e=>{
 function renderHubItems(results,q){
   curHubResults=results;
   hubListEl.replaceChildren();
-  if(!results.length){
-    hubListEl.append(el('div','empty',`No playable open streams found on ${PROVIDER_META[hubMode].label} for "${q}". Try another keyword or switch to All Open.`));
-    return;
+ 
+
+if(!results.length){
+  if(!navigator.onLine){
+    hubListEl.innerHTML = `
+      <div style="text-align:center;padding:18px 10px">
+      <svg viewBox="0 0 24 24"
+             width="36" height="36"
+             xmlns="http://www.w3.org/2000/svg"
+             style="display:block;width:36px;height:36px;margin:0 auto 8px;fill:none"
+             fill="none" aria-hidden="true">
+      <path d="M2 8.5a16 16 0 0 1 20 0M5 12a11 11 0 0 1 14 0M8.5 15.5a6 6 0 0 1 7 0"
+                fill="none"
+                stroke="#ff6b81" stroke-width="1.8"
+                stroke-linecap="round"/>
+      <circle cx="12" cy="19" r="1.2" fill="#ff6b81"/>
+      <path d="M3 3l18 18"
+                fill="none"
+                stroke="#ff6b81" stroke-width="2"
+                stroke-linecap="round"/>
+      </svg>
+      <h3 style="margin:3px 0 5px;font-size:13px;color:var(--ac)">
+          Oops! You're offline
+      </h3>
+      <p style="font-size:11px;line-height:1.4;margin:0;opacity:.8">
+          Check your internet connection and try again.
+      </p>
+      </div>`;
+  } else {
+    hubListEl.append(el('div','empty',
+      `No playable open streams found on ${PROVIDER_META[hubMode].label} for "${q}". Try another keyword or switch to All Open.`
+    ));
   }
+  return;
+}
+
+
   const fr=document.createDocumentFragment();
   for(let i=0;i<results.length;i++){
     const t=results[i];
@@ -5175,6 +5252,25 @@ ui();
   renderQ();
   if(S.queue.length)playIndex(S.pos<0?0:S.pos,{auto:false});
 })();
+
+const offlineSearch = document.getElementById('offlineSearch');
+const songSearch = document.getElementById('onlineSearchInput');
+
+if (songSearch && offlineSearch) {
+  songSearch.addEventListener('input', () => {
+    offlineSearch.hidden = !(
+      songSearch.value.trim() && !navigator.onLine
+    );
+  });
+
+  window.addEventListener('offline', () => {
+    offlineSearch.hidden = !songSearch.value.trim();
+  });
+
+  window.addEventListener('online', () => {
+    offlineSearch.hidden = true;
+  });
+}
 </script>
 </body>
 </html>
